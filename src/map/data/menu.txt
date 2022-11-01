@@ -1,0 +1,46 @@
+# 환경설정 파일입니다
+# #은 주석으로 사용합니다.
+# hash 테이블에서 발생한 오류를 문자열로 파일로 관리합니다
+
+-2000=hash 생성 함수에서 메모리 할당 오류 발생했습니다. 
+-2001=hash 구조체 메모리가 아닙니다.
+-2002=hash 함수에서 메모리를 할당 받다 오류가 발생하였습니다.
+-2003=hash 함수에 자료를 찾을 수가 없습니다.
+
+#########################################################
+#프로그램에서 사용되는 메뉴 메시지를 나타냅니다.
+MAIN_MENU_TITLE=  MY WIKI  
+
+#########################################################
+#프로그램에서 사용되는 메뉴 메시지를 나타냅니다.
+MAIN_MENU_TITLE_LOC=44,4
+
+#########################################################
+#프로그램에서 사용되는 메뉴의 갯수입니다
+MENU_COUNT=3
+
+#########################################################
+#menu 의 제목을 나타낸다.
+MENU_TITLE_1=Search
+MENU_TITLE_2=Upload
+MENU_TITLE_3=Revise
+
+#########################################################
+#menu 의 위치를 나타낸다.
+MENU_TITLE_LOC_1=46,10
+MENU_TITLE_LOC_2=46,14
+MENU_TITLE_LOC_3=46,18
+
+#########################################################
+#menu가 선택되었을 때 로드할 shared object 의 이름을 관리하는 부분 
+MENU_TITLE_SO_1=/home/mobis/final_project/src/finder/libfinder.so
+MENU_TITLE_SO_2=/home/mobis/final_project/src/db/libdb.so
+MENU_TITLE_SO_3=/home/mobis/final_project/src/db/libdb.so
+
+#########################################################
+#menu가 선택되었을 때 실제로 동작할 함수명을 관리한다 
+MENU_COMMAND_1=search
+MENU_COMMAND_2=upload
+MENU_COMMAND_3=revise
+
+CHOICE_MSG= 

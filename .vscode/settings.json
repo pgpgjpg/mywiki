@@ -1,0 +1,19 @@
+{
+    "files.associations": {
+        "stdlib.h": "c",
+        "types.h": "c",
+        "inet.h": "c",
+        "pthread.h": "c",
+        "unistd.h": "c",
+        "type_traits": "cpp",
+        "cmath": "cpp",
+        "limits": "cpp",
+        "stdio.h": "c",
+        "string.h": "c",
+        "menu.h": "c",
+        "server.h": "c",
+        "map.h": "c",
+        "netdb.h": "c",
+        "epoll.h": "c"
+    }
+}
