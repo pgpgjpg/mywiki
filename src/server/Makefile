@@ -1,6 +1,6 @@
 INC = ../../include
 CFLAGS = -fPIC -c -g
-LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lmenus -lhash -lpthread -ldl
+LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lmenus -lhash -lpthread -larray -ldl
 EXES = main
 OBJS = main.o server.o
 SRCS = $(OBJS:.o=.c)

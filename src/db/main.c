@@ -16,8 +16,6 @@ int main()
     arrayAdd(dt.tags, "b");
     db->save(db, &dt);
 
-
-
     Finder *finder = newFinder();
     finder->initFinder(finder);
     if(!finder->loadDataByTitle(finder, db->m_lpData, db->m_nData, "main")){

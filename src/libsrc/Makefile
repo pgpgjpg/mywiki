@@ -1,6 +1,6 @@
 INC = ../../include
 CFLAGS = -fPIC -c -g
-OBJS = menu.o profile.o input.o map.o
+OBJS = menu.o profile.o input.o ../map/map.o
 TARGET = libmenus.so libhash.so libarray.so libprofile.so libinput.so
 
 all: $(TARGET)
