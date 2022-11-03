@@ -27,6 +27,7 @@
         "functional": "c",
         "tuple": "c",
         "utility": "c",
-        "sstream": "c"
+        "sstream": "c",
+        "array.h": "c"
     }
 }

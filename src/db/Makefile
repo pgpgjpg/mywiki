@@ -9,7 +9,7 @@ CC = gcc
 all : main $(TARGET)
 
 main : $(OBJS)
-	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	$(CC) -o $@ $(OBJS) ../finder/finder.o $(LDFLAGS)
 
 .c.o:
 	$(CC) $(CFLAGS) -I$(INC) $< 

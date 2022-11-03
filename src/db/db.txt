@@ -8,7 +8,7 @@
 -2003=hash 함수에 자료를 찾을 수가 없습니다.
 #########################################################
 # 지원 가능 정보 개수
-DATA_COUNT=2
+DATA_COUNT=:
 
 #########################################################
 FILE_TITLE_1=main
@@ -21,3 +21,43 @@ FILE_TITLE_2=pthread
 FILE_DATA_2=동시에 여러 프로세스 실행 가능
 FILE_PATH_2=/home/mobis/jpg/mywiki/src/db/ db.txt
 FILE_TAGS_2=thread 동시 프로세스 main 메인 필수
+#########################################################
+FILE_TITLE_3=title
+FILE_DATA_3=data
+FILE_PATH_3=file
+FILE_TAGS_3=a b
+#########################################################
+FILE_TITLE_4=title
+FILE_DATA_4=data
+FILE_PATH_4=file
+FILE_TAGS_4=a b
+#########################################################
+FILE_TITLE_5=title
+FILE_DATA_5=data
+FILE_PATH_5=file
+FILE_TAGS_5=a b
+#########################################################
+FILE_TITLE_6=title
+FILE_DATA_6=data
+FILE_PATH_6=file
+FILE_TAGS_6=a b
+#########################################################
+FILE_TITLE_7=title
+FILE_DATA_7=data
+FILE_PATH_7=file
+FILE_TAGS_7=a b
+#########################################################
+FILE_TITLE_8=title
+FILE_DATA_8=data
+FILE_PATH_8=file
+FILE_TAGS_8=a b
+#########################################################
+FILE_TITLE_9=title
+FILE_DATA_9=data
+FILE_PATH_9=file
+FILE_TAGS_9=a b
+#########################################################
+FILE_TITLE_10=title
+FILE_DATA_10=data
+FILE_PATH_10=file
+FILE_TAGS_10=a b

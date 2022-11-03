@@ -135,7 +135,7 @@ int load_(DB *lpDB)
         for(int j = 0; j < tmpArr->size; ++j){
             char *tmpChar;
             arrayGetAt(tmpArr, j, (LPDATA*) &tmpChar);
-            printf("key[%s] : %s\n", tmpKey, tmpChar);            
+            //printf("key[%s] : %s\n", tmpKey, tmpChar);            
         }
 		
 		//다음 위치가 없음 while 루프를 종료한다.
