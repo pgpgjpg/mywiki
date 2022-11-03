@@ -1,8 +1,8 @@
 INC = ../../include
-CFLAGS = -c -g
-LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lpthread
+CFLAGS = -fPIC -c -g
+LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lprofile -lhash -linput -larray -ldl
 EXES = main
-OBJS = main.o client.o
+OBJS = main.o db.o
 SRCS = $(OBJS:.o=.c)
 CC = gcc
 

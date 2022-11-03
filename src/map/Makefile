@@ -1,34 +1,18 @@
+INC = ../../include
+CFLAGS = -fPIC -c -g
+LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lmenus -lhash -lpthread -ldl
 EXES = main
-OBJS = main.o map.o array.o hash.o input.o menu.o profile.o
-SRCS = $(OBJS1:.o=.c)
+OBJS = main.o map.o
+SRCS = $(OBJS:.o=.c)
 CC = gcc
-CFLAG = -c -g
 
-all : main
+all : main $(TARGET)
 
 main : $(OBJS)
-	$(CC) -o $@ $(OBJS) -ldl
+	$(CC) -o $@ $(OBJS) 
 
-main.o : main.c
-	$(CC) $(CFLAG) $<
-
-map.o : map.c
-	$(CC) $(CFLAG) $<
-
-array.o : ../../lib/array.c
-	$(CC) $(CFLAG) $<
-
-hash.o : ../../lib/hash.c
-	$(CC) $(CFLAG) $<
-
-input.o : ../../lib/input.c
-	$(CC) $(CFLAG) $<
-
-menu.o : ../../lib/menu.c
-	$(CC) $(CFLAG) $<
-
-profile.o : ../../lib/profile.c
-	$(CC) $(CFLAG) $<
+.c.o:
+	$(CC) $(CFLAGS) -I$(INC) $< 
 
 clean :
-	rm $(EXES) $(OBJS)
+	rm *.o lib*.so main

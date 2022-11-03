@@ -5,7 +5,6 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <unistd.h>
 #include "client.h"
 
 Client *newClient()
@@ -13,66 +12,123 @@ Client *newClient()
     Client *tmp = (Client*)malloc(sizeof(Client));
     
     tmp->m_this = tmp;
-    tmp->setClient = setClient_;
-    tmp->send = send_;    
-    tmp->recv = recv_;  
-    tmp->deleteClient = deleteClient_;      
+    tmp->set = set_;
+    tmp->run = run_;
+    tmp->recv = recv_;
+    tmp->send = send_;
+    tmp->deleteClient = deleteClient_;
 
     return tmp;
 }
 
-void deleteClient_(Client *p_this)
-{
-    close(p_this->sockfd);
-    free(p_this);
+void deleteClient_(Client *lpClient)
+{    
+    free(lpClient);
 }
 
-void setClient_(Client *p_this, char* ipaddr)
+void set_(Client *lpClient)
 {
-   if((p_this->he = gethostbyname(ipaddr)) == NULL) {
-       perror("gethostbyname");
-       exit(1);
-   }
-   if((p_this->sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1) {
-       perror("socket");
-       exit(1);
-   }
-   p_this->server_addr.sin_family = AF_INET;
-   p_this->server_addr.sin_port = htons(60000);
-   p_this->server_addr.sin_addr = *((struct in_addr *)p_this->he->h_addr);
-   printf("[ %s ]\n",(char*) inet_ntoa(p_this->server_addr.sin_addr));
-   memset(&(p_this->server_addr.sin_zero), '\0',8);
-   if(connect(p_this->sockfd, (struct sockaddr *)&p_this->server_addr, sizeof(struct sockaddr))== -1) {
-       perror("connect");
-       exit(1);
-   }
+	if((lpClient->m_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+	{
+		perror("socket");
+		exit(1);
+	}
+
+	lpClient->m_server_addr.sin_family = AF_INET;
+	lpClient->m_server_addr.sin_port = htons(60000);
+	lpClient->m_server_addr.sin_addr.s_addr = inet_addr(IP_ADDR);
+	memset(&(lpClient->m_server_addr.sin_zero), '\0', 8);
+
+	if(connect(lpClient->m_sockfd, (struct sockaddr*)&lpClient->m_server_addr, sizeof(lpClient->m_server_addr)) == -1){
+		perror("CONNECT");
+		exit(1);
+	}
 }
 
-void send_(Client *p_this)
+void run_(Client *lpClient)
 {
-   while(1){
-        fgets(p_this->buf, MAXDATASIZE, stdin);
-        p_this->buf[strlen(p_this->buf)-1] = '\0';
-        write(p_this->sockfd, p_this->buf, strlen(p_this->buf));   
 
-        //system("clear");
-        p_this->recv(p_this);       
+    if(pthread_create(&lpClient->m_tid1, NULL, lpClient->send, lpClient) != 0){
+		perror("pthread_create");
+	}
+	if(pthread_create(&lpClient->m_tid2, NULL, lpClient->recv, lpClient) != 0){
+		perror("pthread_create");
+	}
 
-        fflush(stdin);
-   }
-    
+	pthread_join(lpClient->m_tid1, NULL);
+	pthread_join(lpClient->m_tid2, NULL);
+	
+	close(lpClient->m_sockfd);
 }
 
-void recv_(Client *p_this)
+void *send_(void *arg)
 {
-    char recvbuf[MAXDATASIZE];   
-    int numbytes;    
-    fflush(stdout);
-    if((numbytes = recv(p_this->sockfd, recvbuf, MAXDATASIZE-1, 0)) == -1) {
-        perror("recv");
-        exit(1);
-    }    
-    recvbuf[numbytes] = '\0';
-    printf("%s\n", recvbuf);
-    
+    Client lpClient = *((Client*)arg);  
+
+	int n;
+	char buffer[1024];
+	pthread_cleanup_push(cleanup, 0);
+	while(1){
+		//fgets(buffer, 1024, stdin);
+		//n = strlen(buffer);
+		//buffer[n-1] = '\0';
+		//if(!strcmp(buffer, "/q"))
+		//	break;
+		//printf("here\n");
+		int key = linux_kbhit();
+		send(lpClient.m_sockfd, &key, sizeof(key), 0);
+		//send(lpClient.m_sockfd, buffer, n, 0);
+	}
+	pthread_cleanup_pop(0);
+	pthread_cancel(lpClient.m_tid2);
+	pthread_exit(NULL);	    
+}
+
+void *recv_(void *arg)
+{
+    Client lpClient = *((Client*)arg);    
+
+	int n;
+	char buffer[MAXDATASIZE];
+	
+	while(1){		
+		n = recv(lpClient.m_sockfd, buffer, MAXDATASIZE, 0);
+		if(n <= 0){
+			printf("\n서버 연결 끊김\n");
+			break;
+		}		
+		if(!strcmp(buffer, "end")){
+			break;
+		} 
+		buffer[n] = '\0';
+		system("clear");		
+		printf("%s", buffer);
+		fflush(stdout);		
+	}
+	
+	pthread_cancel(lpClient.m_tid1);
+	pthread_exit(NULL);    
+	exit(0);
+}
+
+void cleanup(void *arg)
+{
+    struct termios oldt, newt;     
+    tcgetattr( STDIN_FILENO, &oldt ); 
+    newt = oldt;
+    newt.c_lflag |= ( ICANON | ECHO ); 
+    tcsetattr( STDIN_FILENO, TCSANOW, &newt );            
+}
+
+int linux_kbhit(void)
+{
+    struct termios oldt, newt; 
+    int ch;
+    tcgetattr( STDIN_FILENO, &oldt ); 
+    newt = oldt;
+    newt.c_lflag &= ~( ICANON | ECHO ); 
+    tcsetattr( STDIN_FILENO, TCSANOW, &newt );    
+    ch = getchar();
+    tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
+    return ch;
 }

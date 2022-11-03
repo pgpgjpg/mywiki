@@ -14,6 +14,18 @@
         "server.h": "c",
         "map.h": "c",
         "netdb.h": "c",
-        "epoll.h": "c"
+        "epoll.h": "c",
+        "stat.h": "c",
+        "typeinfo": "c",
+        "atomic": "cpp",
+        "profile.h": "c",
+        "optional": "c",
+        "istream": "c",
+        "ostream": "c",
+        "system_error": "c",
+        "array": "c",
+        "functional": "c",
+        "tuple": "c",
+        "utility": "c"
     }
 }

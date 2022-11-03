@@ -6,8 +6,8 @@
 int main()
 {    
     Server *server = newServer();
-    server->setServer(server);    
-    server->recv(server);    
+    server->set(server);    
+    server->run(server);    
     server->deleteServer(server);
     return 0;
 }

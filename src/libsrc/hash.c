@@ -32,6 +32,9 @@ LPNODE nodeCreate(const char* key, LPDATA value)
 	
 	//Hash Value 값을 기록한다.
 	lpNode->value = value;
+
+	arrayCreate(&lpNode->lpArr);
+	arrayAdd(lpNode->lpArr, (const LPDATA) value);
 	
 	return lpNode;
 }
@@ -180,6 +183,68 @@ int hashSetValue(LPHASH lpHash, const char* key, const LPDATA value)
 	lpTemp = lpHash->array[nHashBucket];
 	
 	//hash table에 key가 존재하는지 확인한다.
+	hashIsKey(lpHash, key, &isExist);	
+	if (TRUE == isExist) {			
+		//key가 존재하는 경우 위치를 찾는다
+		while (NULL != lpTemp) {
+			if (0 == strcmp(lpTemp->key, key)) {
+				//메모리를 해제해야 할 경우 메모리 해제 함수를 호출한다.
+				// if (lpHash->free) {
+				// 	lpHash->free(lpTemp->value);
+				// }
+				
+				//key의 위치에 value를 설정한다.
+				lpTemp->value = value;				
+				arrayAdd(lpTemp->lpArr, (const LPDATA) value);				
+				//free(lpTemp);
+				break;
+			}
+			// 다음 위치로 이동한다.
+			lpTemp = lpTemp->pNext;
+		}
+	
+	} else {
+		//새로운 노드는 항상 시작위치에 삽입한다.
+		//만약 마지막 위치 삽입을 하게 하려면 위치를 찾기 
+		//위해 이동을 하는 코드가 삽입된야 함(속도 저하 문제 발생 원인)
+		lpNode->pNext = lpHash->array[nHashBucket];
+		lpHash->array[nHashBucket] = lpNode;
+		
+		//새롭게 삽입된 노드를 관리 하기 위해 count를 증가한다.
+		lpHash->count++;
+	}
+	
+	return ERR_HASH_OK;
+}
+
+int hashAppendValue(LPHASH lpHash, const char* key, const LPDATA value)
+{
+	LPNODE lpNode;
+	int nHashBucket;
+	LPNODE lpTemp;
+	int isExist;
+	
+	if(lpHash == NULL) {
+		return ERR_HASH_CREATE;
+	}
+	
+	//hash 메모리인가을 확인합니다
+	if(HASH_MAGIC_CODE != lpHash->magicCode) {
+		return ERR_HASH_MAGICCODE;
+	}
+	
+	//Node를 생성한다.
+	lpNode = nodeCreate(key, value);
+	if (NULL == lpNode) {
+		return ERR_HASH_ALLOC;
+	}
+	
+	//node을 삽입할 buckey의 위치를 구한다.
+	nHashBucket = lpNode->hashValue % lpHash->nHashSize;
+	//node 배열로 부터 링크드 리스트의 Header를 구한다.
+	lpTemp = lpHash->array[nHashBucket];
+	
+	//hash table에 key가 존재하는지 확인한다.
 	hashIsKey(lpHash, key, &isExist);
 	if (TRUE == isExist) {
 	
@@ -265,7 +330,7 @@ int hashGetFirstPostion(LPHASH lpHash, POSITION* position)
 	return ERR_HASH_OK;
 }
 
-int hashGetNextPostion(LPHASH lpHash, POSITION* position, char** pKey, LPDATA* pValue)
+int hashGetNextPostion(LPHASH lpHash, POSITION* position, char** pKey, LPDATA* pValue, LPARRAY* pArr)
 {
 	LPNODE lpNode;
 	LPNODE lpNext;
@@ -314,6 +379,10 @@ int hashGetNextPostion(LPHASH lpHash, POSITION* position, char** pKey, LPDATA* p
 	// 인자에 리턴할 값을 기록한다.
 	*pKey = lpNode->key;
 	*pValue = lpNode->value;
+	
+	if(pArr != NULL){		
+		*pArr = lpNode->lpArr;
+	}
 	return ERR_HASH_OK;
 }
 

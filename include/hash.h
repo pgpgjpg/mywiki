@@ -1,6 +1,6 @@
 #ifndef _HASH_DF294208_F203_4892_8059_44FA1D9BECEE_
 #define _HASH_DF294208_F203_4892_8059_44FA1D9BECEE_
-
+#include "array.h"
 /*hash에 의한 포인터가 가리기는 진정한 메모리 인지를 확인하기 위한 값*/
 #define HASH_MAGIC_CODE 0x48415348 /*HASH*/
 
@@ -29,6 +29,7 @@ UINT         hashValue;
 char         key[HASH_KEY_SIZE];
 LPDATA       value;
 struct _tagNode* pNext;
+LPARRAY lpArr;
 } NODE;
 
 
@@ -57,7 +58,8 @@ int hashSetValue(LPHASH lpHash, const char* key, const LPDATA value);
 int hashIsKey(LPHASH lpHash, const char* key, int* isValue);
 int hashRemoveKey(LPHASH lpHash, const char* key);
 int hashGetFirstPostion(LPHASH lpHash, POSITION* position);
-int hashGetNextPostion(LPHASH lpHash, POSITION* position, char** pKey, LPDATA* pValue);
+//int hashGetNextPostion(LPHASH lpHash, POSITION* position, char** pKey, LPDATA* pValue);
+int hashGetNextPostion(LPHASH lpHash, POSITION* position, char** pKey, LPDATA* pValue, LPARRAY* pArr);
 int hashSetFree(LPHASH lpHash, void(*)(void*));
 int hashDestroy(LPHASH lpHash);
 

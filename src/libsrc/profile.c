@@ -10,7 +10,7 @@ static int _fileLoad(LPPROFILE lpProfile)
     char *key, *value;
     FILE *fp;
     LPHASH lpHash = lpProfile->lpHash;
-    
+
 	//파일을 open 한다.
 	fp = fopen(lpProfile->filename, "r");
 	printf("filename = %s\n", lpProfile->filename);
@@ -45,7 +45,7 @@ static int _fileLoad(LPPROFILE lpProfile)
 
 
 int profileCreate(LPPROFILE* lppRet, char* filename)
-{
+{	
     LPPROFILE lpProfile;
     int nErr;
     
@@ -84,7 +84,7 @@ int profileCreate(LPPROFILE* lppRet, char* filename)
 
 int profileGetIntValue(LPC_PROFILE lpProfile, const char* key, int* value)
 {
-    int nErr;
+	int nErr;
     LPHASH lpHash;
     char* lpValue;
     
@@ -98,6 +98,7 @@ int profileGetIntValue(LPC_PROFILE lpProfile, const char* key, int* value)
 
     //key 에 대한 값을 읽어들인다.
     nErr = hashGetValue(lpHash, key, (LPDATA*) &lpValue);
+	
     if (ERR_HASH_OK != nErr) {
         return nErr;
     }
@@ -154,7 +155,7 @@ int profileAllDisplay(LPC_PROFILE lpProfile)
 
 	//다음 위치로 이동하여 
 	while (pos) {
-		nErr = hashGetNextPostion(lpHash, &pos, &key, (LPDATA*) &value);
+		nErr = hashGetNextPostion(lpHash, &pos, &key, (LPDATA*) &value, NULL);
 		if (ERR_HASH_OK != nErr) {
 			printf("%s:%d error code = %d\n",__FILE__, __LINE__, nErr);
 			break;

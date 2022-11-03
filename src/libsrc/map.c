@@ -32,20 +32,28 @@ void drawFrame_(Map *lpMap)
     int fd;
     struct stat fbuf;    
 
+    FILE *f;
+    f = fopen("/home/mobis/jpg/mywiki/src/map/data/frame.txt", "r");
+    fseek(f, 0, SEEK_END);    
+        
     // frame 초기화
     if((fd = open("/home/mobis/jpg/mywiki/src/map/data/frame.txt", O_RDONLY)) == -1)
     {
         perror("open");
         exit(1);
     }
+    
+    lpMap->m_map = (char*)malloc(sizeof(char)*ftell(f));
+    
+    // fstat(fd, &fbuf);
+    // lpMap->m_map = (char*)malloc(sizeof(char)*fbuf.st_size);
 
-    fstat(fd, &fbuf);
-    lpMap->m_map = (char*)malloc(sizeof(char)*fbuf.st_size);
-
-    if(read(fd, lpMap->m_map, fbuf.st_size)==-1){
+    if(read(fd, lpMap->m_map, ftell(f))==-1){
         perror("read");
         exit(1);
-    }
+    }    
+
+    fclose(f);
     close(fd);     
 
     lpMap->m_rows = lpMap->m_cols = lpMap->m_padding = 0;
