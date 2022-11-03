@@ -10,7 +10,6 @@
 #include <sys/wait.h>
 #include <pthread.h>
 #include "server.h"
-#include "menu.h"
 
 Server *newServer()
 {
@@ -87,13 +86,104 @@ void run_(Server *lpServer)
 
 void* start_main(void* arg)
 {
-	LPMENU lpMenu;
+	char key;
+	int sd = *(int*)arg;
+	Map *lpMap = newMap(); 
+	int menuIdx = 0;
+    char menus[4][10] = {"Search", "Upload", "Revise", "Exit"};
+    //무한 반복을 하면서 처리를 메뉴를 입력 반는다.    
+    while (1) {
+		lpMap->drawFrame(lpMap);
+		lpMap->drawText(lpMap, (int)(lpMap->m_rows*1/6 + 0.5), lpMap->m_cols/2 - 3, "Search");
+		lpMap->drawText(lpMap, (int)(lpMap->m_rows*2/6 + 0.5), lpMap->m_cols/2 - 3, "Upload");
+		lpMap->drawText(lpMap, (int)(lpMap->m_rows*3/6 + 0.5), lpMap->m_cols/2 - 3, "Revise");
+		lpMap->drawText(lpMap, (int)(lpMap->m_rows*4/6 + 1), lpMap->m_cols/2 - 2, "Exit");
+        char *str = strstr(lpMap->m_map, menus[menuIdx]);
+        if(str != NULL) *(str -2) = '*';
+        send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);        
 
-	int sd = *((int*) arg);	
+		keyCallback(sd, &key);
 
-	menuCreate(&lpMenu);
-	menuRun(lpMenu, sd);
-	menuDestroy(lpMenu);
-	close(sd);
+		switch(key){
+			case 'u' : 				
+			case 'l' : 
+				if(menuIdx != 0) menuIdx--; 
+		 		else menuIdx = 3;
+				break;
+			case 'd' : 				
+			case 'r' : 
+				if(menuIdx != 3) menuIdx++;
+		 		else menuIdx = 0;
+				break;
+
+			case '\n' : 
+				if(menuIdx == 0){
+					// Search Alg
+					printf("Client accessed \"Search\"\n");
+					server_search(sd, lpMap);
+				}else if(menuIdx == 1){
+					// Upload Alg
+					server_upload(sd, lpMap);
+				}else if(menuIdx == 2){
+					// Revise Alg
+					server_revise(sd, lpMap);
+				}else{
+					// Exit
+					exit(0);
+				}
+				
+				break;
+			default:
+				break;				
+		}
+	}
+	
 	return NULL;
 }
+
+void keyCallback(int sd, char *key)
+{	
+	static int key1, key2, key3;	
+	int idx = 0, n;
+	recv(sd, &key1, sizeof(key1), 0);
+
+	if(key1 == '\n'){
+		printf("enter 침\n");
+		*key = key1;
+		return;
+	}			
+	else if(key1 != 27) return;
+
+	recv(sd, &key2, sizeof(key2), 0);
+	if(key2 != 91) return;
+
+	recv(sd, &key3, sizeof(key3), 0);
+	if(key3 < 65 || key3 > 68) return;     
+	
+	switch(key3){
+		case 65 : 
+			*key = 'u';			
+			break;
+		case 68 :
+			*key = 'l';
+			break;
+		case 66 :  
+			*key = 'd';
+			break;              
+		case 67 :
+			*key = 'r';
+			break;
+	}
+}
+
+void server_search(int sd, Map *lpMap) 
+{
+	char *ques = "Enter hash tag to search";
+	lpMap->clearMap(lpMap); // frame만 남기고 나머지 다 제거
+	lpMap->drawText(lpMap, 5, lpMap->m_cols/2 - strlen(ques)/2, ques);
+	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);    
+	getchar();
+}
+
+void server_upload(int sd, Map *lpMap) {}
+void server_revise(int sd, Map *lpMap) {}

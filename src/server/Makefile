@@ -1,4 +1,4 @@
-INC = ../../include
+INC = ../../include -I../map/
 CFLAGS = -fPIC -c -g
 LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lmenus -lhash -lpthread -larray -ldl
 EXES = main
