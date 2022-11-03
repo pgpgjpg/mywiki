@@ -1,6 +1,6 @@
 INC = ../../include
 CFLAGS = -fPIC -c -g
-LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lprofile -lhash -linput -larray -ldl
+LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lhash -larray -ldl
 EXES = main
 OBJS = main.o finder.o
 SRCS = $(OBJS:.o=.c)

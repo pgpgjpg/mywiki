@@ -2,5 +2,5 @@
 
 int main()
 {
-    
+    Finder *finder = newFinder();
 }

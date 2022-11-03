@@ -1,37 +1,33 @@
-#ifndef _DB_H
-#define _DB_H
+#ifndef _FINDER_H
+#define _FINDER_H
 #include "array.h"
-#include "profile.h"
-#define DATA_COUNT "DATA_COUNT"
-#define FILE_TITLE "FILE_TITLE"
-#define FILE_DATA "FILE_DATA"
-#define FILE_PATH "FILE_PATH"
-#define FILE_TAGS "FILE_TAGS"
+#include "hash.h"
+#include "../db/db.h"
+// typedef struct{
+//     char *title;
+//     char *data;
+//     char *file;
+//     LPARRAY tags;
+// } Data;
+typedef struct Finder{
+    struct Finder *m_this; // 자신을 가리키는 포인터 변수
+    Data m_data; // {char *title, char *data, char *file, LPARRAY tag;}
+    LPHASH m_lpHashTitle;
+    
+    int (*initFinder)(struct Finder *); 
+    void (*deleteFinder)(struct Finder *); // 소멸자
+    void (*searchTitleByTag)(struct Finder *, LPHASH, char *);
+    int (*loadDataByTitle)(struct Finder *, Data *, int nData, char*);
+    void (*showData)(struct Finder *);
+    void (*showTitles)(struct Finder *);
+}Finder;
 
-typedef struct{
-    char *title;
-    char *data;
-    char *file;
-    LPARRAY tags;
-} Data;
-typedef struct DB{
-    struct DB *m_this; // 자신을 가리키는 포인터 변수
-    LPHASH m_lpHashTag;
-    Data *m_lpData; // {char *title, char *data, char *file, LPARRAY tags;}    
-    int m_nData;
-
-    void (*deleteDB)(struct DB *); // 소멸자
-    void (*save)(struct DB *, Data *);
-    void (*remove)(struct DB *, char *);
-    void (*getTag)(struct DB *);
-    int (*load)(struct DB *);
-}DB;
-
-DB *newDB();
-void deleteDB_(DB *); // 소멸자
-void save_(DB *, Data *);
-void remove_(DB *, char *);
-void getTag_(DB *);
-int load_(DB *);
+Finder *newFinder();
+int initFinder_(Finder *); 
+void deleteFinder_(Finder *); // 소멸자
+void searchTitleByTag_(Finder *, LPHASH, char *);
+int loadDataByTitle_(Finder *, Data *,int, char*);
+void showData_(Finder *);
+void showTitles_(Finder *);
 
 #endif

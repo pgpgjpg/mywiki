@@ -1,121 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "db.h"
+#include "finder.h"
 
-DB *newDB()
+Finder *newFinder()
 {
-    DB *tmp = (DB*)malloc(sizeof(DB));
+    Finder *tmp = (Finder*)malloc(sizeof(Finder));
 
     tmp->m_this = tmp;
-    tmp->deleteDB = deleteDB_; // 소멸자
-    tmp->save = save_;
-    tmp->remove = remove_;
-    tmp->getTag = getTag_;
-    tmp->load = load_;     
+    tmp->initFinder = initFinder_; 
+    tmp->deleteFinder = deleteFinder_; // 소멸자
+    tmp->searchTitleByTag = searchTitleByTag_;
+    tmp->loadDataByTitle = loadDataByTitle_;
+    tmp->showData = showData_;
+    tmp->showTitles = showTitles_;
 
-    int nErr;
-  
-    nErr = hashCreate(&tmp->m_lpHashTag);
+    return tmp;
+}
+
+void deleteFinder_(Finder *lpFinder)
+{
+    free(lpFinder);
+}
+
+int initFinder_(Finder *lpFinder) 
+{
+    int nErr = hashCreate(&lpFinder->m_lpHashTitle);
 	if (ERR_HASH_OK != nErr) {
 		printf("%s:%d error code = %d\n",__FILE__, __LINE__, nErr);
 		return 0;
 	}
     
     //hash 테이블에 메모리를 해제 할 수 있는 함수를 등록한다.
-    nErr = hashSetFree(tmp->m_lpHashTag, (void(*)(void*))free);
+    nErr = hashSetFree(lpFinder->m_lpHashTitle, (void(*)(void*))free);
 	if (ERR_HASH_OK != nErr) {
 		printf("%s:%d error code = %d\n",__FILE__, __LINE__, nErr);
 		return 0;
 	}
 
-    return tmp;
+    return 1;
 }
 
-void deleteDB_(DB *lpDB)
+void searchTitleByTag_(Finder *lpFinder, LPHASH lpHash, char *tag) 
 {
-    free(lpDB);
-}
-
-int load_(DB *lpDB)
-{    
-	LPPROFILE lpProfile;
-    int nErr, dCount = 0;
-    char  szBuf[256];
-    
-    //프로파일 메모리를 할당한다.    
-    nErr = profileCreate(&lpProfile, "db.txt");
-    if (ERR_PROFILE_OK != nErr) {
-        return nErr;
-    }
- 
-    profileGetIntValue(lpProfile, DATA_COUNT, &dCount);
-    lpDB->m_nData = dCount;
-
-    lpDB->m_lpData = (Data*)calloc(dCount, sizeof(Data));    
-    if (NULL == lpDB->m_lpData) {
-        //프로파일 구조체 메모리를 해제한다.
-        profileDestroy(lpProfile);
-        return -1;
-    }
-    
-    for(int i = 0; i < lpDB->m_nData; ++i){        
-        char *tmpTags;
-        sprintf(szBuf, "%s_%d", FILE_TITLE, i+1);        
-        profileGetStringValue(lpProfile, szBuf, &lpDB->m_lpData[i].title);
-
-        sprintf(szBuf, "%s_%d", FILE_DATA, i+1);        
-        profileGetStringValue(lpProfile, szBuf, &lpDB->m_lpData[i].data);
-
-        sprintf(szBuf, "%s_%d", FILE_PATH, i+1);        
-        profileGetStringValue(lpProfile, szBuf, &lpDB->m_lpData[i].file);
-
-        sprintf(szBuf, "%s_%d", FILE_TAGS, i+1);        
-        profileGetStringValue(lpProfile, szBuf, &tmpTags);      
-
-        arrayCreate(&lpDB->m_lpData[i].tags);
-        char *str = tmpTags;
-        char *val;
-        while (1) {	    
-            if (0 == str[0]) {
-                break;
-            }
-            if (0 != str[0]) {                
-                val = strtok(str, " ");           
-                str = val + strlen(val) + 1;                                
-                arrayAdd(lpDB->m_lpData[i].tags, (const LPDATA) val);   
-            }            
-	    } 
-    }    
-    
-    for(int i = 0; i < lpDB->m_nData; ++i){        
-        // printf("[%d]title : %s\n", i+1, lpDB->m_lpData[i].title);
-        // printf("[%d]data : %s\n", i+1, lpDB->m_lpData[i].data);
-        // printf("[%d]file : %s\n", i+1, lpDB->m_lpData[i].file);        
-        
-        for(int j = 0; j < lpDB->m_lpData[i].tags->size; ++j){
-            char *tmpChar;
-            arrayGetAt(lpDB->m_lpData[i].tags, j, (LPDATA*) &tmpChar);
-            //printf("[%d]tags : %s\n", i+1, tmpChar);            
-        }
-    }   
-    
-    // key : hashTag, value : title
-    for(int i = 0; i < lpDB->m_nData; i++) {
-        for(int j = 0; j < lpDB->m_lpData[i].tags->size; ++j){
-            char *tag;
-            arrayGetAt(lpDB->m_lpData[i].tags, j, (LPDATA*) &tag);
-            nErr = hashSetValue(lpDB->m_lpHashTag, tag, (LPDATA) lpDB->m_lpData[i].title);
-            
-            if (ERR_HASH_OK != nErr) {
-                printf("%s:%d error code = %d\n",__FILE__, __LINE__, nErr);
-    	    }
-        }      
-    }
-
     POSITION pos;
+    int nErr;
+
     //hash 테이블의 처음 위치를 얻는다.
-	nErr = hashGetFirstPostion(lpDB->m_lpHashTag, &pos);
+	nErr = hashGetFirstPostion(lpHash, &pos);
 	if (ERR_HASH_OK != nErr) {
 		printf("%s:%d error code = %d\n",__FILE__, __LINE__, nErr);
 	}
@@ -125,83 +57,78 @@ int load_(DB *lpDB)
         char *tmpVal;
         LPARRAY tmpArr;     
         // 마지막 매개 변수는 char* 반환임! 난 array를 받아야 함
-		nErr = hashGetNextPostion(lpDB->m_lpHashTag, &pos, &tmpKey, (LPDATA*)&tmpVal, &tmpArr);
-        
+		nErr = hashGetNextPostion(lpHash, &pos, &tmpKey, (LPDATA*)&tmpVal, &tmpArr);        
 		if (ERR_HASH_OK != nErr) {
 			printf("%s:%d error code = %d\n",__FILE__, __LINE__, nErr);
 			break;
 		}
-        //printf("tmpArr Size : %d\n", tmpArr->size);
-        for(int j = 0; j < tmpArr->size; ++j){
-            char *tmpChar;
-            arrayGetAt(tmpArr, j, (LPDATA*) &tmpChar);
-            printf("key[%s] : %s\n", tmpKey, tmpChar);            
+
+        if(!strcmp(tmpKey, tag)){
+            for(int j = 0; j < tmpArr->size; ++j){
+                char *tmpTitle;
+                arrayGetAt(tmpArr, j, (LPDATA*) &tmpTitle);
+                nErr = hashSetValue(lpFinder->m_lpHashTitle, tmpTitle, NULL);
+            }   
         }
+        
+		//다음 위치가 없음 while 루프를 종료한다.
+		if (NULL == pos) {
+			break;
+		}
+	}
+}
+
+int loadDataByTitle_(Finder *lpFinder, Data *lpData, int nData, char *title) 
+{
+    for(int i = 0; i < nData; ++i){
+        if(!strcmp(lpData[i].title, title)){
+            lpFinder->m_data = lpData[i];
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void showData_(Finder *lpFinder)
+{
+    printf("title : %s\n", lpFinder->m_data.title);
+    printf("data : %s\n", lpFinder->m_data.data);
+    printf("file : %s\n", lpFinder->m_data.file);
+    printf("tags : ");              
+    for(int i = 0; i < lpFinder->m_data.tags->size; ++i){
+        char *tmpChar;
+        arrayGetAt(lpFinder->m_data.tags, i, (LPDATA*) &tmpChar);
+        printf("%s ", tmpChar);            
+    }
+    printf("\n");
+}
+
+void showTitles_(Finder *lpFinder)
+{
+    POSITION pos;
+    int nErr;
+    //hash 테이블의 처음 위치를 얻는다.
+	nErr = hashGetFirstPostion(lpFinder->m_lpHashTitle, &pos);
+	if (ERR_HASH_OK != nErr) {
+		printf("%s:%d error code = %d\n",__FILE__, __LINE__, nErr);
+	}
+	//다음 위치로 이동하여 
+	while (1) {        
+        char *tmpKey;
+        char *tmpVal;
+        LPARRAY tmpArr;     
+        // 마지막 매개 변수는 char* 반환임! 난 array를 받아야 함
+		nErr = hashGetNextPostion(lpFinder->m_lpHashTitle, &pos, &tmpKey, (LPDATA*)&tmpVal, &tmpArr);
+		if (ERR_HASH_OK != nErr) {
+			printf("%s:%d error code = %d\n",__FILE__, __LINE__, nErr);
+			break;
+		}
+        printf("%s ", tmpKey);
 		
 		//다음 위치가 없음 while 루프를 종료한다.
 		if (NULL == pos) {
 			break;
 		}
 	}
-    
+    printf("\n");
 }
-
-void save_(DB *lpDB, Data *lpData)
-{
-    FILE *fp = fopen("db.txt", "r");	
-	if (NULL == fp) {
-	    printf("%s 파일을 열수 없습니다\n", "db.txt");
-	    exit(1);
-	}    
-    fseek(fp, 0, SEEK_END);  
-    char *buf;
-    int fSize = ftell(fp)+1000;
-    buf = (char*)malloc(sizeof(char)*fSize);    
-    fseek(fp, 0, SEEK_SET);  
- 
-    if(fread(buf, 1, fSize, fp) == 0) {
-        printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
-        exit(1);
-    }
-
-    char *str = strstr(buf, "DATA_COUNT=");
-    //char *tok = strchr(str, '\n'); *tok = '\0';
-    int menuCnt = atoi(str + strlen("DATA_COUNT="));    
-    *(str + strlen("DATA_COUNT=")) = (++menuCnt) + '0';
- 	
-	//파일을 닫습니다.
-	fclose(fp);
-    
-    
-
-    fp = fopen("db.txt", "w");
-
-    if(fp == NULL){
-        printf("%s 파일을 열수 없습니다\n", "db.txt");
-        exit(1);
-    }
-
-    sprintf(buf + strlen(buf), "#########################################################\n");
-    sprintf(buf + strlen(buf), "FILE_TITLE_%d=%s\n", menuCnt, lpData->title);
-    sprintf(buf + strlen(buf), "FILE_DATA_%d=%s\n", menuCnt, lpData->data);
-    sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", menuCnt, lpData->file);
-    sprintf(buf + strlen(buf), "FILE_TAGS_%d=", menuCnt);
-
-    for(int j = 0; j < lpData->tags->size; ++j){
-        char *tmpChar;
-        arrayGetAt(lpData->tags, j, (LPDATA*) &tmpChar);
-        sprintf(buf + strlen(buf), "%s ", tmpChar);
-    }
-    *(buf + strlen(buf) - 1) = '\n';
-
-    //printf("%s\nsize : %ld\n", buf, strlen(buf));
-
-
-    fwrite(buf, sizeof(char), strlen(buf), fp);
-    
-    fclose(fp);
-    free(buf);
-}
-
-void remove_(DB *lpDB, char *title){}
-void getTag_(DB *lpDB){}
