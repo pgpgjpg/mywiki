@@ -58,7 +58,7 @@ int load_(DB *lpDB)
         profileDestroy(lpProfile);
         return -1;
     }
-
+    
     for(int i = 0; i < lpDB->m_nData; ++i){        
         char *tmpTags;
         sprintf(szBuf, "%s_%d", FILE_TITLE, i+1);        
@@ -87,7 +87,7 @@ int load_(DB *lpDB)
             }            
 	    } 
     }    
-
+    
     for(int i = 0; i < lpDB->m_nData; ++i){        
         // printf("[%d]title : %s\n", i+1, lpDB->m_lpData[i].title);
         // printf("[%d]data : %s\n", i+1, lpDB->m_lpData[i].data);
@@ -135,7 +135,7 @@ int load_(DB *lpDB)
         for(int j = 0; j < tmpArr->size; ++j){
             char *tmpChar;
             arrayGetAt(tmpArr, j, (LPDATA*) &tmpChar);
-            // printf("key[%s] : %s\n", tmpKey, tmpChar);            
+            printf("key[%s] : %s\n", tmpKey, tmpChar);            
         }
 		
 		//다음 위치가 없음 while 루프를 종료한다.
@@ -146,6 +146,62 @@ int load_(DB *lpDB)
     
 }
 
-void save_(DB *lpDB, Data *lpData){}
+void save_(DB *lpDB, Data *lpData)
+{
+    FILE *fp = fopen("db.txt", "r");	
+	if (NULL == fp) {
+	    printf("%s 파일을 열수 없습니다\n", "db.txt");
+	    exit(1);
+	}    
+    fseek(fp, 0, SEEK_END);  
+    char *buf;
+    int fSize = ftell(fp)+1000;
+    buf = (char*)malloc(sizeof(char)*fSize);    
+    fseek(fp, 0, SEEK_SET);  
+ 
+    if(fread(buf, 1, fSize, fp) == 0) {
+        printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
+        exit(1);
+    }
+
+    char *str = strstr(buf, "DATA_COUNT=");
+    //char *tok = strchr(str, '\n'); *tok = '\0';
+    int menuCnt = atoi(str + strlen("DATA_COUNT="));    
+    *(str + strlen("DATA_COUNT=")) = (++menuCnt) + '0';
+ 	
+	//파일을 닫습니다.
+	fclose(fp);
+    
+    
+
+    fp = fopen("db.txt", "w");
+
+    if(fp == NULL){
+        printf("%s 파일을 열수 없습니다\n", "db.txt");
+        exit(1);
+    }
+
+    sprintf(buf + strlen(buf), "#########################################################\n");
+    sprintf(buf + strlen(buf), "FILE_TITLE_%d=%s\n", menuCnt, lpData->title);
+    sprintf(buf + strlen(buf), "FILE_DATA_%d=%s\n", menuCnt, lpData->data);
+    sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", menuCnt, lpData->file);
+    sprintf(buf + strlen(buf), "FILE_TAGS_%d=", menuCnt);
+
+    for(int j = 0; j < lpData->tags->size; ++j){
+        char *tmpChar;
+        arrayGetAt(lpData->tags, j, (LPDATA*) &tmpChar);
+        sprintf(buf + strlen(buf), "%s ", tmpChar);
+    }
+    *(buf + strlen(buf) - 1) = '\n';
+
+    //printf("%s\nsize : %ld\n", buf, strlen(buf));
+
+
+    fwrite(buf, sizeof(char), strlen(buf), fp);
+    
+    fclose(fp);
+    free(buf);
+}
+
 void remove_(DB *lpDB, char *title){}
 void getTag_(DB *lpDB){}
