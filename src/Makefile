@@ -1,0 +1,29 @@
+CC = gcc
+INC = /home/mobis/jpg/mywiki/include
+CFLAGS = -fPIC -c -g
+LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lprofile -lhash -linput -larray -ldl
+TARGET = libsrc map db finder client server
+.PHONY : $(TARGET)
+
+all : $(TARGET)
+
+libsrc :
+	cd $@; make
+map :
+	cd $@; make
+db :
+	cd $@; make
+finder :
+	cd $@; make
+client :	
+	cd $@; make
+server :
+	cd $@; make
+
+clean :
+	cd client; make clean
+	cd db; make clean
+	cd finder; make clean
+	cd libsrc; make clean
+	cd map; make clean
+	cd server; make clean
