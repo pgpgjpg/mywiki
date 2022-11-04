@@ -191,7 +191,7 @@ int arrayDestroy(LPARRAY lpArray)
             lpArray->lpData[i] = NULL;
         }
     }
-
+    
     //해제할 배열 메모리가 존재하면 해제한다.
     if(NULL != lpArray->lpData) {
         free(lpArray->lpData);
@@ -202,5 +202,18 @@ int arrayDestroy(LPARRAY lpArray)
     free(lpArray);
     
     //성공 코드 리턴합니다
+    return ERR_ARRAY_OK;
+}
+
+int arrayCopy(LPARRAY* dst, LPARRAY src)
+{
+    arrayCreate(dst);
+
+    for(int i = 0; i < src->size; ++i){
+        LPDATA *tmpVal;
+		arrayGetAt(src, i, (LPDATA*) &tmpVal);
+        arrayAdd(*dst, tmpVal);
+    }
+
     return ERR_ARRAY_OK;
 }

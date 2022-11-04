@@ -69,15 +69,8 @@ void *send_(void *arg)
 	char buffer[1024];
 	pthread_cleanup_push(cleanup, 0);
 	while(1){
-		//fgets(buffer, 1024, stdin);
-		//n = strlen(buffer);
-		//buffer[n-1] = '\0';
-		//if(!strcmp(buffer, "/q"))
-		//	break;
-		//printf("here\n");
 		int key = linux_kbhit();
-		send(lpClient.m_sockfd, &key, sizeof(key), 0);
-		//send(lpClient.m_sockfd, buffer, n, 0);
+		send(lpClient.m_sockfd, &key, sizeof(key), 0);		
 	}
 	pthread_cleanup_pop(0);
 	pthread_cancel(lpClient.m_tid2);
@@ -99,10 +92,35 @@ void *recv_(void *arg)
 		}		
 		if(!strcmp(buffer, "end")){
 			break;
-		} 
-		buffer[n] = '\0';
-		system("clear");		
-		printf("%s", buffer);
+		} 		
+		
+		if(buffer[n-1] == '^'){			
+			buffer[n - 1] = '\0';
+			FILE *fp = fopen(buffer, "w");	
+			n = recv(lpClient.m_sockfd, buffer, MAXDATASIZE, 0);					
+			fwrite(buffer, sizeof(char), n, fp);			
+			fclose(fp);
+		}else if(buffer[n - 1] == '#'){
+			buffer[n - 1] = '\0';
+			FILE *fp = fopen(buffer, "r");	
+			if (NULL == fp) {
+				printf("%s 파일을 열수 없습니다\n", "db.txt");
+				send(lpClient.m_sockfd, "NULL", strlen("NULL"), 0);
+				exit(1);
+			}    			
+		
+			if(fread(buffer, 1, 50000, fp) == 0) {
+				printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
+				exit(1);
+			}
+			fclose(fp);
+			send(lpClient.m_sockfd, buffer, strlen(buffer), 0);
+			
+		}else{
+			buffer[n] = '\0';
+			system("clear");		
+			printf("%s", buffer);								
+		}
 		fflush(stdout);		
 	}
 	

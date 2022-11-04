@@ -132,6 +132,7 @@ int menuRun(LPC_MENU lpMenu, int sd)
                     break;
                 case 3:
                     send(sd, "end", strlen("end"), 0);
+                    exit(0);
                     break;
             }
         }

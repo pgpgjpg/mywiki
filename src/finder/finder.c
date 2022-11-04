@@ -41,7 +41,7 @@ int initFinder_(Finder *lpFinder)
     return 1;
 }
 
-void searchTitleByTag_(Finder *lpFinder, LPHASH lpHash, char *tag) 
+int searchTitleByTag_(Finder *lpFinder, LPHASH lpHash, char *tag) 
 {
     POSITION pos;
     int nErr;
@@ -69,11 +69,12 @@ void searchTitleByTag_(Finder *lpFinder, LPHASH lpHash, char *tag)
                 arrayGetAt(tmpArr, j, (LPDATA*) &tmpTitle);
                 nErr = hashSetValue(lpFinder->m_lpHashTitle, tmpTitle, NULL);
             }   
+            return 1;
         }
         
 		//다음 위치가 없음 while 루프를 종료한다.
 		if (NULL == pos) {
-			break;
+			return 0;
 		}
 	}
 }

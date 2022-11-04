@@ -16,7 +16,7 @@ typedef struct Finder{
     
     int (*initFinder)(struct Finder *); 
     void (*deleteFinder)(struct Finder *); // 소멸자
-    void (*searchTitleByTag)(struct Finder *, LPHASH, char *);
+    int (*searchTitleByTag)(struct Finder *, LPHASH, char *);
     int (*loadDataByTitle)(struct Finder *, Data *, int nData, char*);
     void (*showData)(struct Finder *);
     void (*showTitles)(struct Finder *);
@@ -25,7 +25,7 @@ typedef struct Finder{
 Finder *newFinder();
 int initFinder_(Finder *); 
 void deleteFinder_(Finder *); // 소멸자
-void searchTitleByTag_(Finder *, LPHASH, char *);
+int searchTitleByTag_(Finder *, LPHASH, char *);
 int loadDataByTitle_(Finder *, Data *,int, char*);
 void showData_(Finder *);
 void showTitles_(Finder *);

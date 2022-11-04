@@ -1,8 +1,8 @@
-INC = ../../include -I../map/
+INC = ../../include -I../map/ -I../db/ -I../finder/
 CFLAGS = -fPIC -c -g
 LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lmenus -lhash -lpthread -larray -ldl
 EXES = main
-OBJS = main.o server.o
+OBJS = main.o server.o ../db/db.o ../finder/finder.o
 SRCS = $(OBJS:.o=.c)
 CC = gcc
 

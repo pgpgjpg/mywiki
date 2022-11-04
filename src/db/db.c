@@ -44,7 +44,7 @@ int load_(DB *lpDB)
     char  szBuf[256];
     
     //프로파일 메모리를 할당한다.    
-    nErr = profileCreate(&lpProfile, "db.txt");
+    nErr = profileCreate(&lpProfile, "/home/mobis/jpg/mywiki/src/db/db.txt");
     if (ERR_PROFILE_OK != nErr) {
         return nErr;
     }
@@ -148,7 +148,7 @@ int load_(DB *lpDB)
 
 void save_(DB *lpDB, Data *lpData)
 {
-    FILE *fp = fopen("db.txt", "r");	
+    FILE *fp = fopen("/home/mobis/jpg/mywiki/src/db/db.txt", "r");	
 	if (NULL == fp) {
 	    printf("%s 파일을 열수 없습니다\n", "db.txt");
 	    exit(1);
@@ -163,39 +163,60 @@ void save_(DB *lpDB, Data *lpData)
         printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
         exit(1);
     }
+    fclose(fp);
 
-    char *str = strstr(buf, "DATA_COUNT=");
-    //char *tok = strchr(str, '\n'); *tok = '\0';
-    int menuCnt = atoi(str + strlen("DATA_COUNT="));    
-    *(str + strlen("DATA_COUNT=")) = (++menuCnt) + '0';
- 	
-	//파일을 닫습니다.
-	fclose(fp);
     
-    
+    char tmpStr[1024] = "";
+    sprintf(tmpStr, "=%s\nFILE_DATA_", lpData->title);
+    char *lpStr = strstr(buf, tmpStr);
 
-    fp = fopen("db.txt", "w");
+    if(lpStr == NULL){
+        char *str = strstr(buf, "DATA_COUNT=");
+        int menuCnt = atoi(str + strlen("DATA_COUNT="));   
+        char tmp[4] = "";
+        sprintf(tmp, "%d", ++menuCnt);
+        strncpy((str + strlen("DATA_COUNT=")), tmp, strlen(tmp));
 
-    if(fp == NULL){
-        printf("%s 파일을 열수 없습니다\n", "db.txt");
-        exit(1);
+        fp = fopen("/home/mobis/jpg/mywiki/src/db/db.txt", "w");
+
+        if(fp == NULL){
+            printf("%s 파일을 열수 없습니다\n", "db.txt");
+            exit(1);
+        }
+
+        sprintf(buf + strlen(buf), "#########################################################\n");
+        sprintf(buf + strlen(buf), "FILE_TITLE_%d=%s\n", menuCnt, lpData->title);
+        sprintf(buf + strlen(buf), "FILE_DATA_%d=%s\n", menuCnt, lpData->data);
+        sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", menuCnt, lpData->file);
+        sprintf(buf + strlen(buf), "FILE_TAGS_%d=", menuCnt);
+
+        for(int j = 0; j < lpData->tags->size; ++j){
+            char *tmpChar;
+            arrayGetAt(lpData->tags, j, (LPDATA*) &tmpChar);
+            sprintf(buf + strlen(buf), "%s ", tmpChar);
+        }
+        *(buf + strlen(buf) - 1) = '\n';
+    }else{
+        // fp = fopen("/home/mobis/jpg/mywiki/src/db/db.txt", "w");
+
+        // if(fp == NULL){
+        //     printf("%s 파일을 열수 없습니다\n", "db.txt");
+        //     exit(1);
+        // }
+
+        // sprintf(buf + strlen(buf), "#########################################################\n");
+        // sprintf(lpStr + strlen(lpData->title) + 2 + strlen("FILE_TITLE_%d="), "FILE_TITLE_%d=%s\n", menuCnt, lpData->title);
+        // sprintf(lpStr + strlen(lpData->title) + 1, "FILE_DATA_%d=%s\n", menuCnt, lpData->data);
+        // sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", menuCnt, lpData->file);
+        // sprintf(buf + strlen(buf), "FILE_TAGS_%d=", menuCnt);
+
+        // for(int j = 0; j < lpData->tags->size; ++j){
+        //     char *tmpChar;
+        //     arrayGetAt(lpData->tags, j, (LPDATA*) &tmpChar);
+        //     sprintf(buf + strlen(buf), "%s ", tmpChar);
+        // }
+        // *(buf + strlen(buf) - 1) = '\n';
     }
-
-    sprintf(buf + strlen(buf), "#########################################################\n");
-    sprintf(buf + strlen(buf), "FILE_TITLE_%d=%s\n", menuCnt, lpData->title);
-    sprintf(buf + strlen(buf), "FILE_DATA_%d=%s\n", menuCnt, lpData->data);
-    sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", menuCnt, lpData->file);
-    sprintf(buf + strlen(buf), "FILE_TAGS_%d=", menuCnt);
-
-    for(int j = 0; j < lpData->tags->size; ++j){
-        char *tmpChar;
-        arrayGetAt(lpData->tags, j, (LPDATA*) &tmpChar);
-        sprintf(buf + strlen(buf), "%s ", tmpChar);
-    }
-    *(buf + strlen(buf) - 1) = '\n';
-
-    //printf("%s\nsize : %ld\n", buf, strlen(buf));
-
 
     fwrite(buf, sizeof(char), strlen(buf), fp);
     
