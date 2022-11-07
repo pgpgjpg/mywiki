@@ -38,10 +38,15 @@ void set_(Client *lpClient)
 	lpClient->m_server_addr.sin_port = htons(60000);
 	lpClient->m_server_addr.sin_addr.s_addr = inet_addr(IP_ADDR);
 	memset(&(lpClient->m_server_addr.sin_zero), '\0', 8);
-
-	if(connect(lpClient->m_sockfd, (struct sockaddr*)&lpClient->m_server_addr, sizeof(lpClient->m_server_addr)) == -1){
-		perror("CONNECT");
-		exit(1);
+	
+	while(1){
+		if(connect(lpClient->m_sockfd, (struct sockaddr*)&lpClient->m_server_addr, sizeof(lpClient->m_server_addr)) == -1){
+			perror("CONNECT");
+			printf("Waiting for server...\n");
+			sleep(1);
+		}else{
+			break;
+		}
 	}
 }
 
@@ -104,14 +109,15 @@ void *recv_(void *arg)
 			buffer[n - 1] = '\0';
 			FILE *fp = fopen(buffer, "r");	
 			if (NULL == fp) {
-				printf("%s 파일을 열수 없습니다\n", "db.txt");
+				//printf("%s 파일을 열수 없습니다\n", "db.txt");
 				send(lpClient.m_sockfd, "NULL", strlen("NULL"), 0);
-				exit(1);
+				continue;
 			}    			
 		
 			if(fread(buffer, 1, 50000, fp) == 0) {
-				printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
-				exit(1);
+				//printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
+				send(lpClient.m_sockfd, buffer, strlen(buffer), 0);
+				continue;
 			}
 			fclose(fp);
 			send(lpClient.m_sockfd, buffer, strlen(buffer), 0);

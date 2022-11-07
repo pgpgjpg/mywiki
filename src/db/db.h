@@ -25,6 +25,7 @@ typedef struct DB{
     void (*remove)(struct DB *, char *);
     void (*getTag)(struct DB *);
     int (*load)(struct DB *);
+    int (*isInDB)(struct DB *, char*);
 }DB;
 
 DB *newDB();
@@ -33,5 +34,6 @@ void save_(DB *, Data *);
 void remove_(DB *, char *);
 void getTag_(DB *);
 int load_(DB *);
+int isInDB_(DB *, char*);
 
 #endif

@@ -2,37 +2,39 @@
 # #은 주석으로 사용합니다.
 # hash 테이블에서 발생한 오류를 문자열로 파일로 관리합니다
 
--2000=hash 생성 함수에서 메모리 할당 오류 발생했습니다. 
 -2001=hash 구조체 메모리가 아닙니다.
 -2002=hash 함수에서 메모리를 할당 받다 오류가 발생하였습니다.
+-2002=hash 함수에서 메모리를 할당 받다 오류가 발생하였습니다.
 -2003=hash 함수에 자료를 찾을 수가 없습니다.
-#########################################################
-# 지원 가능 정보 개수
-DATA_COUNT=5                                            
 
+DATA_COUNT=6
 #########################################################
 FILE_TITLE_1=main
 FILE_DATA_1=반드시 1개 있어야함
 FILE_PATH_1=/home/mobis/jpg/mywiki/src/db/main.c
-FILE_TAGS_1=main 메인 필수
-
+FILE_TAGS_1=main 메인 필수 TAGS_5
 #########################################################
 FILE_TITLE_2=pthread
 FILE_DATA_2=동시에 여러 프로세스 실행 가능
-FILE_PATH_2=/home/mobis/jpg/mywiki/src/db/ db.txt
+FILE_PATH_2=/home/mobis/jpg/mywiki/src/db/db.txt
 FILE_TAGS_2=thread 동시 프로세스 main 메인 필수
 #########################################################
-FILE_TITLE_3=1
-FILE_DATA_3=2
-FILE_PATH_3=3
-FILE_TAGS_3=4 5 6 7 8 9 0 10
+FILE_TITLE_3=a
+FILE_DATA_3=rerererere
+FILE_PATH_3=asdsadvddf
+FILE_TAGS_3=rerererer er1
 #########################################################
-FILE_TITLE_4=4
-FILE_DATA_4=5
-FILE_PATH_4=6
-FILE_TAGS_4=7 5 6
+FILE_TITLE_4=b
+FILE_DATA_4=bbb
+FILE_PATH_4=bbb
+FILE_TAGS_4=bbb
 #########################################################
-FILE_TITLE_5=jg
-FILE_DATA_5=2
-FILE_PATH_5=client.c
-FILE_TAGS_5=3 4 5 6
+FILE_TITLE_5=c
+FILE_DATA_5=cc
+FILE_PATH_5=cc
+FILE_TAGS_5=cc
+#########################################################
+FILE_TITLE_6=e
+FILE_DATA_6=eee
+FILE_PATH_6=eee
+FILE_TAGS_6=eee

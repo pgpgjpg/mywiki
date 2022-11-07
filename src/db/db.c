@@ -13,6 +13,7 @@ DB *newDB()
     tmp->remove = remove_;
     tmp->getTag = getTag_;
     tmp->load = load_;     
+    tmp->isInDB = isInDB_;
 
     int nErr;
   
@@ -143,7 +144,6 @@ int load_(DB *lpDB)
 			break;
 		}
 	}
-    
 }
 
 void save_(DB *lpDB, Data *lpData)
@@ -156,7 +156,7 @@ void save_(DB *lpDB, Data *lpData)
     fseek(fp, 0, SEEK_END);  
     char *buf;
     int fSize = ftell(fp)+1000;
-    buf = (char*)malloc(sizeof(char)*fSize);    
+    buf = (char*)malloc(sizeof(char)*fSize*2);    
     fseek(fp, 0, SEEK_SET);  
  
     if(fread(buf, 1, fSize, fp) == 0) {
@@ -165,64 +165,91 @@ void save_(DB *lpDB, Data *lpData)
     }
     fclose(fp);
 
-    
-    char tmpStr[1024] = "";
-    sprintf(tmpStr, "=%s\nFILE_DATA_", lpData->title);
-    char *lpStr = strstr(buf, tmpStr);
+    fp = fopen("/home/mobis/jpg/mywiki/src/db/db.txt", "w");	    
+    char strToFind[100];
 
-    if(lpStr == NULL){
-        char *str = strstr(buf, "DATA_COUNT=");
-        int menuCnt = atoi(str + strlen("DATA_COUNT="));   
-        char tmp[4] = "";
-        sprintf(tmp, "%d", ++menuCnt);
-        strncpy((str + strlen("DATA_COUNT=")), tmp, strlen(tmp));
+    if(lpData != NULL){
+        sprintf(strToFind, "=%s\nFILE_DATA_", lpData->title);
+        char *lpStr = strstr(buf, strToFind);
+        
+        if(lpStr == NULL){        
+            lpDB->m_nData++;
+            lpDB->m_lpData = (Data*)realloc(lpDB->m_lpData, sizeof(Data)*lpDB->m_nData*2);
+            lpDB->m_lpData[lpDB->m_nData - 1].title = (char*)malloc(sizeof(char)*100);
+            lpDB->m_lpData[lpDB->m_nData - 1].data = (char*)malloc(sizeof(char)*100);
+            lpDB->m_lpData[lpDB->m_nData - 1].file = (char*)malloc(sizeof(char)*100);
 
-        fp = fopen("/home/mobis/jpg/mywiki/src/db/db.txt", "w");
 
-        if(fp == NULL){
-            printf("%s 파일을 열수 없습니다\n", "db.txt");
-            exit(1);
+            strcpy(lpDB->m_lpData[lpDB->m_nData - 1].title, lpData->title);
+            strcpy(lpDB->m_lpData[lpDB->m_nData - 1].data, lpData->data);
+            strcpy(lpDB->m_lpData[lpDB->m_nData - 1].file, lpData->file);
+            lpDB->m_lpData[lpDB->m_nData - 1].tags = lpData->tags;
         }
-
-        sprintf(buf + strlen(buf), "#########################################################\n");
-        sprintf(buf + strlen(buf), "FILE_TITLE_%d=%s\n", menuCnt, lpData->title);
-        sprintf(buf + strlen(buf), "FILE_DATA_%d=%s\n", menuCnt, lpData->data);
-        sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", menuCnt, lpData->file);
-        sprintf(buf + strlen(buf), "FILE_TAGS_%d=", menuCnt);
-
-        for(int j = 0; j < lpData->tags->size; ++j){
-            char *tmpChar;
-            arrayGetAt(lpData->tags, j, (LPDATA*) &tmpChar);
-            sprintf(buf + strlen(buf), "%s ", tmpChar);
-        }
-        *(buf + strlen(buf) - 1) = '\n';
-    }else{
-        // fp = fopen("/home/mobis/jpg/mywiki/src/db/db.txt", "w");
-
-        // if(fp == NULL){
-        //     printf("%s 파일을 열수 없습니다\n", "db.txt");
-        //     exit(1);
-        // }
-
-        // sprintf(buf + strlen(buf), "#########################################################\n");
-        // sprintf(lpStr + strlen(lpData->title) + 2 + strlen("FILE_TITLE_%d="), "FILE_TITLE_%d=%s\n", menuCnt, lpData->title);
-        // sprintf(lpStr + strlen(lpData->title) + 1, "FILE_DATA_%d=%s\n", menuCnt, lpData->data);
-        // sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", menuCnt, lpData->file);
-        // sprintf(buf + strlen(buf), "FILE_TAGS_%d=", menuCnt);
-
-        // for(int j = 0; j < lpData->tags->size; ++j){
-        //     char *tmpChar;
-        //     arrayGetAt(lpData->tags, j, (LPDATA*) &tmpChar);
-        //     sprintf(buf + strlen(buf), "%s ", tmpChar);
-        // }
-        // *(buf + strlen(buf) - 1) = '\n';
     }
-
-    fwrite(buf, sizeof(char), strlen(buf), fp);
     
+    memset(buf, 0, sizeof(char)*fSize*2);    
+
+    sprintf(buf + strlen(buf), "# 환경설정 파일을 예제 입니다.\n");
+    sprintf(buf + strlen(buf), "# #은 주석으로 사용합니다.\n");
+    sprintf(buf + strlen(buf), "# hash 테이블에서 발생한 오류를 문자열로 파일로 관리합니다\n\n");
+    sprintf(buf + strlen(buf), "-2001=hash 구조체 메모리가 아닙니다.\n");
+    sprintf(buf + strlen(buf), "-2002=hash 함수에서 메모리를 할당 받다 오류가 발생하였습니다.\n");
+    sprintf(buf + strlen(buf), "-2002=hash 함수에서 메모리를 할당 받다 오류가 발생하였습니다.\n");
+    sprintf(buf + strlen(buf), "-2003=hash 함수에 자료를 찾을 수가 없습니다.\n\n");
+
+    sprintf(buf + strlen(buf), "DATA_COUNT=%d\n", lpDB->m_nData);
+    int flag = 0;
+    for(int i = 0; i < lpDB->m_nData; ++i){     
+        sprintf(buf + strlen(buf), "#########################################################\n");
+        sprintf(buf + strlen(buf), "FILE_TITLE_%d=%s\n", i+1, lpDB->m_lpData[i].title);
+        if(lpData != NULL && !strcmp(lpDB->m_lpData[i].title, lpData->title)){
+            sprintf(buf + strlen(buf), "FILE_DATA_%d=%s\n", i+1, lpData->data);
+            sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", i+1, lpData->file);
+            sprintf(buf + strlen(buf), "FILE_TAGS_%d=", i+1);
+            for(int j = 0; j < lpData->tags->size; ++j){
+                char *tmpChar;
+                arrayGetAt(lpData->tags, j, (LPDATA*) &tmpChar);
+                sprintf(buf + strlen(buf), "%s ", tmpChar);
+            }
+            flag = 1;
+        }else{
+            sprintf(buf + strlen(buf), "FILE_DATA_%d=%s\n", i+1, lpDB->m_lpData[i].data);
+            sprintf(buf + strlen(buf), "FILE_PATH_%d=%s\n", i+1, lpDB->m_lpData[i].file);        
+            sprintf(buf + strlen(buf), "FILE_TAGS_%d=", i+1);
+            for(int j = 0; j < lpDB->m_lpData[i].tags->size; ++j){
+                char *tmpChar;
+                arrayGetAt(lpDB->m_lpData[i].tags, j, (LPDATA*) &tmpChar);
+                sprintf(buf + strlen(buf), "%s ", tmpChar);
+            }            
+        }       
+        *(buf + strlen(buf) - 1) = '\n';    
+    }    
+
+    fwrite(buf, sizeof(char), strlen(buf), fp);    
     fclose(fp);
-    free(buf);
+    free(buf);   
+
+    lpDB->load(lpDB);
 }
 
-void remove_(DB *lpDB, char *title){}
+int isInDB_(DB *lpDB, char *title)
+{    
+    for(int i = 0; i < lpDB->m_nData; ++i){ 
+        if(!strcmp(lpDB->m_lpData[i].title, title))
+            return 1;        
+    }
+    return 0;
+}
+
+void remove_(DB *lpDB, char *title)
+{
+    for(int i = 0; i < lpDB->m_nData; ++i){
+        if(!strcmp(lpDB->m_lpData[i].title, title)){            
+            memmove(lpDB->m_lpData + i, lpDB->m_lpData + i + 1, sizeof(Data)*(lpDB->m_nData - (i+1)));
+            lpDB->m_nData--;
+            break;
+        }
+    }
+}
+
 void getTag_(DB *lpDB){}
