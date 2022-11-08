@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "db.h"
-#include "../finder/finder.h"
+#include "finder.h"
 
 int main()
 {    

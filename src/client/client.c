@@ -99,29 +99,37 @@ void *recv_(void *arg)
 			break;
 		} 		
 		
-		if(buffer[n-1] == '^'){			
+		if(buffer[n-1] == '^'){	
 			buffer[n - 1] = '\0';
-			FILE *fp = fopen(buffer, "w");	
-			n = recv(lpClient.m_sockfd, buffer, MAXDATASIZE, 0);					
-			fwrite(buffer, sizeof(char), n, fp);			
+			char fileData[MAXDATASIZE] = "";
+			char filePath[MAXTITLESIZE] = PATH_SAVE_FILE;			
+			
+			strcat(filePath, buffer);
+			FILE *fp = fopen(filePath, "w");	
+			n = recv(lpClient.m_sockfd, fileData, MAXDATASIZE, 0);					
+			fwrite(fileData, sizeof(char), n, fp);			
 			fclose(fp);
-		}else if(buffer[n - 1] == '#'){
-			buffer[n - 1] = '\0';
-			FILE *fp = fopen(buffer, "r");	
-			if (NULL == fp) {
-				//printf("%s 파일을 열수 없습니다\n", "db.txt");
+		}else if(buffer[n - 1] == '#'){			
+			buffer[n - 1] = '\0';		
+			char fileData[MAXDATASIZE] = "";
+			char filePath[MAXTITLESIZE] = PATH_SAVE_FILE;				
+			strcat(filePath, buffer);
+		
+			FILE *fp = fopen(filePath, "r");	
+			
+			if (NULL == fp) {	
 				send(lpClient.m_sockfd, "NULL", strlen("NULL"), 0);
 				continue;
 			}    			
-		
-			if(fread(buffer, 1, 50000, fp) == 0) {
-				//printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
-				send(lpClient.m_sockfd, buffer, strlen(buffer), 0);
+			int fLen = fread(fileData, 1, MAXDATASIZE, fp);
+
+			if(fLen == 0) {									
+				send(lpClient.m_sockfd, "NULL", strlen("NULL"), 0);
 				continue;
 			}
+
 			fclose(fp);
-			send(lpClient.m_sockfd, buffer, strlen(buffer), 0);
-			
+			send(lpClient.m_sockfd, fileData, fLen, 0);		
 		}else{
 			buffer[n] = '\0';
 			system("clear");		

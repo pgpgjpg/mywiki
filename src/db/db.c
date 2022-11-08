@@ -45,7 +45,7 @@ int load_(DB *lpDB)
     char  szBuf[256];
     
     //프로파일 메모리를 할당한다.    
-    nErr = profileCreate(&lpProfile, "/home/mobis/jpg/mywiki/src/db/db.txt");
+    nErr = profileCreate(&lpProfile, DB_PATH);
     if (ERR_PROFILE_OK != nErr) {
         return nErr;
     }
@@ -148,7 +148,7 @@ int load_(DB *lpDB)
 
 void save_(DB *lpDB, Data *lpData)
 {
-    FILE *fp = fopen("/home/mobis/jpg/mywiki/src/db/db.txt", "r");	
+    FILE *fp = fopen(DB_PATH, "r");	
 	if (NULL == fp) {
 	    printf("%s 파일을 열수 없습니다\n", "db.txt");
 	    exit(1);
@@ -165,7 +165,7 @@ void save_(DB *lpDB, Data *lpData)
     }
     fclose(fp);
 
-    fp = fopen("/home/mobis/jpg/mywiki/src/db/db.txt", "w");	    
+    fp = fopen(DB_PATH, "w");	    
     char strToFind[100];
 
     if(lpData != NULL){

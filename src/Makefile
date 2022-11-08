@@ -2,18 +2,18 @@ CC = gcc
 INC = /home/mobis/jpg/mywiki/include
 CFLAGS = -fPIC -c -g
 LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lprofile -lhash -linput -larray -ldl
-TARGET = libsrc map db finder client server
+TARGET = map libsrc finder db client server
 .PHONY : $(TARGET)
 
 all : $(TARGET)
 
-libsrc :
-	cd $@; make
 map :
 	cd $@; make
-db :
+libsrc :
 	cd $@; make
 finder :
+	cd $@; make
+db :
 	cd $@; make
 client :	
 	cd $@; make

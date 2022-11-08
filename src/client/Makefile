@@ -1,18 +1,19 @@
-INC = ../../include
+BIN = /home/mobis/jpg/mywiki/bin
+INC = /home/mobis/jpg/mywiki/include/
 CFLAGS = -c -g
 LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lpthread
-EXES = main
 OBJS = main.o client.o
 SRCS = $(OBJS:.o=.c)
 CC = gcc
 
-all : main $(TARGET)
+all : client
 
-main : $(OBJS)
+client : $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	cp $@ $(BIN)
 
 .c.o:
 	$(CC) $(CFLAGS) -I$(INC) $< 
 
 clean :
-	rm *.o lib*.so main
+	rm *.o client $(BIN)/client

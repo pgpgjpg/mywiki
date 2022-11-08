@@ -1,12 +1,11 @@
-INC = ../../include
+INC = /home/mobis/jpg/mywiki/include/
 CFLAGS = -fPIC -c -g
 LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lhash -larray -ldl
-EXES = main
 OBJS = main.o finder.o
 SRCS = $(OBJS:.o=.c)
 CC = gcc
 
-all : main $(TARGET)
+all : main
 
 main : $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
@@ -15,4 +14,4 @@ main : $(OBJS)
 	$(CC) $(CFLAGS) -I$(INC) $< 
 
 clean :
-	rm *.o lib*.so main
+	rm *.o main

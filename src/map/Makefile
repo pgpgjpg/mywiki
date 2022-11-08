@@ -1,4 +1,4 @@
-INC = ../../include
+INC = /home/mobis/jpg/mywiki/include/
 CFLAGS = -fPIC -c -g
 LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lmenus -lhash -lpthread -ldl
 EXES = main
@@ -15,4 +15,4 @@ main : $(OBJS)
 	$(CC) $(CFLAGS) -I$(INC) $< 
 
 clean :
-	rm *.o lib*.so main
+	rm *.o main

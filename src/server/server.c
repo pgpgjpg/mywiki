@@ -179,6 +179,7 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 		// 현재 DB에 입력한 Tag를 포함하는 데이터가 있는지 조회
 		if(!lpFinder->searchTitleByTag(lpFinder, lpDB->m_lpHashTag, ans)){	
 			drawBlank(lpMap, R_QUES, lpMap->m_cols - 6);			
+			drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);			
 			drawQues("The tag you put is not in DB, please try again", lpMap, R_QUES, lpMap->m_cols/2);				
 			send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 			sleep(1);
@@ -229,7 +230,7 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 	recv(sd, &key, sizeof(key), 0);
 
 	if(key == 'y'){
-		char buf[MAX_LENGTH] = "";
+		char buf[MAXDATASIZE] = "";
 		FILE *fp = fopen(lpFinder->m_data.file, "r");	
 		if (NULL == fp) {
 			printf("%s 파일을 열수 없습니다\n", "db.txt");
@@ -237,7 +238,7 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 			sendQues("There is not file in DB", sd, lpMap, R_QUES, lpMap->m_cols/2);
 			return;
 		}    					
-		if(fread(buf, 1, MAX_LENGTH, fp) == 0) {
+		if(fread(buf, 1, MAXDATASIZE, fp) == 0) {
 			printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
 			lpMap->clearMap(lpMap);
 			sendQues("There is not file in DB", sd, lpMap, R_QUES, lpMap->m_cols/2);
@@ -247,7 +248,7 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 		send(sd, buf, strlen(buf), 0);	
 		recv(sd, &key, sizeof(key), 0);
 
-		lpMap->clearMap(lpMap); // frame만 남기고 나머지 다 제거
+		lpMap->clearMap(lpMap); 
 		drawQues("Do you want to save example file?[y/n] --> ", lpMap, R_QUES, lpMap->m_cols/2);
 		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);	
 
@@ -255,14 +256,18 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 		recv(sd, &key, sizeof(key), 0);
 
 		if(key == 'y'){			
-			char tmp[100];
+			char tmp[MAXTITLESIZE];
 			strcpy(tmp, lpFinder->m_data.title);
-			strcat(tmp, ".c.example^"); // ^ : save 명령			
+			strcat(tmp, ".c.example^"); // ^ : save 명령							
 			send(sd, tmp, strlen(tmp), 0);	
-			sleep(2);
-			printf("%s file saving...\n", tmp);
+			sleep(1);					
 			send(sd, buf, strlen(buf), 0);	
-			printf("complete\n");
+			sleep(1);					
+			lpMap->clearMap(lpMap); 	
+			sendQues("saving...", sd, lpMap, R_QUES, lpMap->m_cols/2);	
+			sleep(1);
+			lpMap->clearMap(lpMap); 	
+			sendQues("complete", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 		}	
 	}	
 }
@@ -328,36 +333,38 @@ void server_upload(int sd, Map *lpMap, DB *lpDB)
 	uploadData.tags = lpArr;	
 
 	// 첨부파일 입력		
-	lpMap->clearMap(lpMap); // frame만 남기고 나머지 다 제거	
+	lpMap->clearMap(lpMap); 
 	drawQues("If you want to upload file, enter file path+name", lpMap, R_QUES, lpMap->m_cols/2);	
 	drawQues("If not, just push enter key", lpMap, R_QUES+1, lpMap->m_cols/2);			
 	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 
 	memset(ans, 0, MAX_LENGTH);
-	syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);	
+	syncAnswer(ans, sd, lpMap, R_ANS+1, lpMap->m_cols/2);	
 	if(strlen(ans) == 1) strcpy(uploadData.file, "NULL");
 	else{
-		char tmp[100] = "";
-		char buffer[50000] = "";
+		char tmp[MAXTITLESIZE] = "";
+		char buffer[MAXDATASIZE] = "";
 		ans[strlen(ans) - 1] = '\0';
 
 		strcpy(uploadData.file, ans);		
 		strcpy(tmp, uploadData.file);
 		strcat(tmp, "#");
 
-		send(sd, tmp, strlen(tmp), 0);					
-		recv(sd, buffer, 50000, 0);
-
+		send(sd, tmp, strlen(tmp), 0);						
+		recv(sd, buffer, MAXDATASIZE, 0);
+		
 		if(strcmp(buffer, "NULL")){
-			char tmpTitle[100] = "";
-			strcpy(tmpTitle, "../db/example/");
-			strcat(tmpTitle, uploadData.file);
+			char tmpTitle[MAXTITLESIZE] = "";
+			strcpy(tmpTitle, uploadData.file);			
+			strcpy(uploadData.file, EXAMPLE_PATH);
+			strcat(uploadData.file, tmpTitle);
 			
-			FILE *fp = fopen(tmpTitle, "w");				
+			FILE *fp = fopen(uploadData.file, "w");				
 			lpMap->clearMap(lpMap); 	
 			sendQues("saving...", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 			sleep(1);		
-			fwrite(buffer, sizeof(char), 50000, fp);			
+			printf("%s\n", buffer);
+			fwrite(buffer, sizeof(char), strlen(buffer), fp);	
 			lpMap->clearMap(lpMap); 	
 			sendQues("complete", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 			fclose(fp);
@@ -482,11 +489,11 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 
 	memset(ans, 0, MAX_LENGTH);
-	syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);	
+	syncAnswer(ans, sd, lpMap, R_ANS + 1, lpMap->m_cols/2);	
 	if(strlen(ans) == 1) strcpy(reviseData.file, "NULL");
 	else{
-		char tmp[100] = "";
-		char buffer[50000] = "";
+		char tmp[MAXTITLESIZE] = "";
+		char buffer[MAXDATASIZE] = "";
 		ans[strlen(ans) - 1] = '\0';
 
 		strcpy(reviseData.file, ans);		
@@ -494,21 +501,22 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 		strcat(tmp, "#");
 
 		send(sd, tmp, strlen(tmp), 0);					
-		recv(sd, buffer, 50000, 0);
+		recv(sd, buffer, MAXDATASIZE, 0);
 
 		if(strcmp(buffer, "NULL")){
-			char tmpTitle[100] = "";
-			strcpy(tmpTitle, "../db/example/");
-			strcat(tmpTitle, reviseData.file);
+			char tmpTitle[MAXTITLESIZE] = "";
+			strcpy(tmpTitle, reviseData.file);			
+			strcpy(reviseData.file, EXAMPLE_PATH);
+			strcat(reviseData.file, tmpTitle);
 			
-			FILE *fp = fopen(tmpTitle, "w");				
+			FILE *fp = fopen(reviseData.file, "w");						
 			lpMap->clearMap(lpMap); 	
 			sendQues("saving...", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 			sleep(1);
-			fwrite(buffer, sizeof(char), 50000, fp);	
+			fwrite(buffer, sizeof(char), strlen(buffer), fp);	
 			lpMap->clearMap(lpMap); 	
 			sendQues("complete", sd, lpMap, R_QUES, lpMap->m_cols/2);			
-			fclose(fp);						
+			fclose(fp);		
 		}else{
 			strcpy(reviseData.file, "NULL");
 		}
@@ -649,7 +657,9 @@ void syncAnswer(char* ans, int sd, Map *lpMap, int r, int c)
 {
 	while(1){	
 		appendCharCallback(sd, ans);		
-		if(ans[strlen(ans) - 1] == '\n') break;			
+		// 개행문자 입력 시 빠져나감
+		if(ans[strlen(ans) - 1] == '\n') break;		
+		// backspace	
 		if(strlen(ans) > 1 && (ans[strlen(ans) - 1] == 127 || ans[strlen(ans) - 1] == 8))
 			memset(ans + strlen(ans) - 2, '\0', sizeof(char)*2);			
 		drawBlank(lpMap, r, strlen(ans) + 2);

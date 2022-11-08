@@ -4,7 +4,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-#include "../map/map.h"
+#include "map.h"
 
 /*동적 라이브러리를 사용하기 위한 해더 파일 */
 #include <dlfcn.h>
@@ -21,8 +21,7 @@ int menuCreate(LPMENU* lppRet)
     void* handle;
     const char *dlsym_error;
     
-    //프로파일 메모리를 할당한다.    
-    //nErr = profileCreate(&lpProfile, "../map/data/menu.txt");
+    //프로파일 메모리를 할당한다.        
     nErr = profileCreate(&lpProfile, "input4.txt");
     if (ERR_PROFILE_OK != nErr) {
         return nErr;

@@ -1,18 +1,20 @@
-INC = ../../include -I../map/ -I../db/ -I../finder/
+BIN = /home/mobis/jpg/mywiki/bin
+SRC = /home/mobis/jpg/mywiki/src
+INC = /home/mobis/jpg/mywiki/include/ -I$(SRC)/map/ -I$(SRC)/db/ -I$(SRC)/finder/
 CFLAGS = -fPIC -c -g
 LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lmenus -lhash -lpthread -larray -ldl
-EXES = main
-OBJS = main.o server.o ../db/db.o ../finder/finder.o
+OBJS = main.o server.o $(SRC)/db/db.o $(SRC)/finder/finder.o
 SRCS = $(OBJS:.o=.c)
 CC = gcc
 
-all : main $(TARGET)
+all : server $(TARGET)
 
-main : $(OBJS)
+server : $(OBJS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+	cp $@ $(BIN)
 
 .c.o:
 	$(CC) $(CFLAGS) -I$(INC) $< 
 
 clean :
-	rm *.o lib*.so main
+	rm *.o server $(BIN)/server
