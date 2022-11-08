@@ -34,13 +34,15 @@ void set_(Server *lpServer)
 	if((lpServer->m_sockfd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
 	{
 		perror("socket");
-		exit(1);
+		return;
+		//exit(1);
 	}
 
 	if(setsockopt(lpServer->m_sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1)
 	{
 		perror("setsockopt");
-		exit(1);
+		return;
+		//exit(1);
 	}
 
 	lpServer->m_server_addr.sin_family = AF_INET;
@@ -51,13 +53,14 @@ void set_(Server *lpServer)
 	if(bind(lpServer->m_sockfd, (struct sockaddr *)&lpServer->m_server_addr, sizeof(struct sockaddr)) == -1)
 	{
 		perror("bind");
-		exit(1);
+		return;
+		//exit(1);
 	}
 
 	if(listen(lpServer->m_sockfd, BACKLOG) == -1) 
 	{
-		perror("listen");
-		exit(1);
+		return;
+		//exit(1);
 	}
 }
 
@@ -66,10 +69,11 @@ void run_(Server *lpServer)
     int sin_size;
     pthread_t tid;
 
+	printf("Waiting for client...\n");
     while(1)
 	{
 		sin_size = sizeof(struct sockaddr_in);
-		printf("Waiting for client...\n");
+		
 		if((lpServer->m_new_fd = accept(lpServer->m_sockfd, (struct sockaddr *) &lpServer->m_client_addr, &sin_size)) == -1)
 		{
 			perror("accept");
@@ -145,7 +149,9 @@ void* start_main(void* arg)
 					lpMap->clearMap(lpMap); // frame만 남기고 나머지 다 제거
 					sendQues("Exit", sd, lpMap, R_QUES, lpMap->m_cols/2);
 					sleep(1);
-					exit(0);
+					send(sd, "end", 3, 0);
+					return NULL;
+					//exit(1);
 				}				
 				break;
 			default:
@@ -182,7 +188,7 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 			drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);			
 			drawQues("The tag you put is not in DB, please try again", lpMap, R_QUES, lpMap->m_cols/2);				
 			send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
-			sleep(1);
+			//sleep(1);
 			continue;
 		} 
 		
@@ -192,7 +198,8 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 	
 		// 작성한 Tags들 Map에 표시
 		lpMap->clearMap(lpMap);
-		drawQues("Enter hash tag to search(And then, enter to next step)", lpMap, R_QUES, lpMap->m_cols/2);		
+		drawQues("If you want to add tag, enter another tag", lpMap, R_QUES, lpMap->m_cols/2);		
+		drawQues("If not, just put \"Enter\" key", lpMap, R_QUES+1, lpMap->m_cols/2);				
 		drawTags(lpArr, lpMap,R_TAG, lpMap->m_cols/2);
 		drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);		
 		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);		
@@ -200,6 +207,7 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 
 	// 찾고자 하는 데이터의 제목 입력
 	drawBlank(lpMap, R_QUES, lpMap->m_cols - 6);			
+	drawBlank(lpMap, R_QUES+1, lpMap->m_cols - 6);			
 	drawQues("Enter title", lpMap, R_QUES, lpMap->m_cols/2);						
 	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 	
@@ -227,7 +235,11 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 
 	// 예제 파일 열기 여부 수신
 	int key;
-	recv(sd, &key, sizeof(key), 0);
+	while(1){
+		recv(sd, &key, sizeof(key), 0);
+		if(key == 'y' || key == 'Y' || key == 'n' || key == 'N')
+			break;
+	}
 
 	if(key == 'y'){
 		char buf[MAXDATASIZE] = "";
@@ -246,23 +258,31 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 		}
 		fclose(fp);
 		send(sd, buf, strlen(buf), 0);	
-		recv(sd, &key, sizeof(key), 0);
+
+		while(1){
+			recv(sd, &key, sizeof(key), 0);
+			if(key == '\n')
+				break;
+		}		
 
 		lpMap->clearMap(lpMap); 
 		drawQues("Do you want to save example file?[y/n] --> ", lpMap, R_QUES, lpMap->m_cols/2);
 		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);	
 
-		// 예제 파일 저장 여부 수신
-		recv(sd, &key, sizeof(key), 0);
-
+		// 예제 파일 저장 여부 수신		
+		while(1){
+			recv(sd, &key, sizeof(key), 0);
+			if(key == 'y' || key == 'Y' || key == 'n' || key == 'N')
+				break;
+		}
 		if(key == 'y'){			
 			char tmp[MAXTITLESIZE];
 			strcpy(tmp, lpFinder->m_data.title);
-			strcat(tmp, ".c.example^"); // ^ : save 명령							
+			strcat(tmp, ".example.c^"); // ^ : save 명령							
 			send(sd, tmp, strlen(tmp), 0);	
-			sleep(1);					
+			usleep(500000);					
 			send(sd, buf, strlen(buf), 0);	
-			sleep(1);					
+			usleep(500000);					
 			lpMap->clearMap(lpMap); 	
 			sendQues("saving...", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 			sleep(1);
@@ -401,9 +421,10 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 		// 현재 DB에 입력한 Tag를 포함하는 데이터가 있는지 조회
 		if(!lpFinder->searchTitleByTag(lpFinder, lpDB->m_lpHashTag, ans)){	
 			drawBlank(lpMap, R_QUES, lpMap->m_cols - 6);			
+			drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);			
 			drawQues("The tag you put is not in DB, please try again", lpMap, R_QUES, lpMap->m_cols/2);				
 			send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
-			sleep(1);
+			//sleep(1);
 			continue;
 		} 
 		
@@ -413,7 +434,8 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 	
 		// 작성한 Tags들 Map에 표시
 		lpMap->clearMap(lpMap);
-		drawQues("Enter hash tag to search(And then, enter to next step)", lpMap, R_QUES, lpMap->m_cols/2);		
+		drawQues("If you want to add tag, enter another tag", lpMap, R_QUES, lpMap->m_cols/2);		
+		drawQues("If not, just put \"Enter\" key", lpMap, R_QUES+1, lpMap->m_cols/2);				
 		drawTags(lpArr, lpMap,R_TAG, lpMap->m_cols/2);
 		drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);		
 		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);		
@@ -421,6 +443,7 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 
 	// 찾고자 하는 데이터의 제목 입력
 	drawBlank(lpMap, R_QUES, lpMap->m_cols - 6);			
+	drawBlank(lpMap, R_QUES+1, lpMap->m_cols - 6);	
 	drawQues("Enter title", lpMap, R_QUES, lpMap->m_cols/2);						
 	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 	
@@ -456,7 +479,7 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 
 	// Hash tag 입력 질문 전달	
 	lpMap->clearMap(lpMap); 
-	sendQues("Enter tags", sd, lpMap, R_QUES, lpMap->m_cols/2);		
+	sendQues("Enter tags", sd, lpMap, R_QUES, lpMap->m_cols/2);			
 	
 	lpArr->size = 0;	
 	char *addVal;
@@ -475,10 +498,12 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 		// 현재까지 입력받은 hash tag들을 client에 전달
 		int rForDisplay = 0;
 		lpMap->clearMap(lpMap);
-		drawQues("Enter tags", lpMap, R_QUES, lpMap->m_cols/2);
+		drawQues("If you want to add tag, enter another tag", lpMap, R_QUES, lpMap->m_cols/2);		
+		drawQues("If done, just put Enter key", lpMap, R_QUES+1, lpMap->m_cols/2);		
+		//drawQues("If not, just put \"Enter\" key", lpMap, R_QUES+1, lpMap->m_cols/2);	
 		drawTags(lpArr, lpMap, R_TAG, lpMap->m_cols/2);		
 		drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);		
-		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
+		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);	
 	}	
 	reviseData.tags = lpArr;	
 
@@ -551,9 +576,10 @@ void server_delete(int sd, Map *lpMap, DB *lpDB)
 		// 현재 DB에 입력한 Tag를 포함하는 데이터가 있는지 조회
 		if(!lpFinder->searchTitleByTag(lpFinder, lpDB->m_lpHashTag, ans)){	
 			drawBlank(lpMap, R_QUES, lpMap->m_cols - 6);			
+			drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);			
 			drawQues("The tag you put is not in DB, please try again", lpMap, R_QUES, lpMap->m_cols/2);				
 			send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
-			sleep(1);
+			//sleep(1);
 			continue;
 		} 
 		
@@ -563,7 +589,8 @@ void server_delete(int sd, Map *lpMap, DB *lpDB)
 	
 		// 작성한 Tags들 Map에 표시
 		lpMap->clearMap(lpMap);
-		drawQues("Enter hash tag to search(And then, enter to next step)", lpMap, R_QUES, lpMap->m_cols/2);		
+		drawQues("If you want to add tag, enter another tag", lpMap, R_QUES, lpMap->m_cols/2);		
+		drawQues("If not, just put \"Enter\" key", lpMap, R_QUES+1, lpMap->m_cols/2);					
 		drawTags(lpArr, lpMap,R_TAG, lpMap->m_cols/2);
 		drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);		
 		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);		
@@ -571,24 +598,27 @@ void server_delete(int sd, Map *lpMap, DB *lpDB)
 
 	// 찾고자 하는 데이터의 제목 입력
 	drawBlank(lpMap, R_QUES, lpMap->m_cols - 6);			
+	drawBlank(lpMap, R_QUES+1, lpMap->m_cols - 6);			
 	drawQues("Enter title", lpMap, R_QUES, lpMap->m_cols/2);						
 	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 	
 	
-	char *remove_title = (char*)malloc(sizeof(char)*MAX_LENGTH);	
-	char ans[MAX_LENGTH] = "";
+	char *remove_title = (char*)malloc(sizeof(char)*MAX_LENGTH);		
 	// 입력한 제목의 데이터를 DB로부터 불러오기	
 	while(1){
+		char ans[MAX_LENGTH] = "";		
+		char title[MAX_LENGTH] = "";
 		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);
 		ans[strlen(ans) - 1] = '\0';
-		strcpy(remove_title, ans);
+		strcpy(title, ans);	
 		
-		if(!lpDB->isInDB(lpDB, remove_title)){
+		if(!lpDB->isInDB(lpDB, title)){
 			drawBlank(lpMap, R_ANS, lpMap->m_cols - 6);			
 			drawQues("The title you wrote is not in DB, please try again", lpMap, R_QUES, lpMap->m_cols/2);				
 			send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 			continue;
 		}
+		strcpy(remove_title, title);
 	
 		break;
 	}	
@@ -697,7 +727,7 @@ void hash2arr(LPARRAY lpArr, LPHASH lpHash, int type)
 				break;
 			default:
 				printf("error : you enter wrong key in hash2arr()\n");
-				exit(1);
+				//exit(1);
 		}
 		
 		if (NULL == pos) {
@@ -743,12 +773,12 @@ void drawBlank(Map *lpMap, int r, int len)
 
 void drawInfoFromDB(char *buf, Finder *lpFinder)
 {	
-	strcpy(buf, "------- 제  목 -------\n");
+	strcpy(buf, " Title : ");
 	strcat(buf, lpFinder->m_data.title);
-	strcat(buf, "\n");
-	strcat(buf, "\n------- 내  용 -------\n");
+	strcat(buf, "\n\n");
+	strcat(buf, " Decirption : ");
 	strcat(buf, lpFinder->m_data.data);
-	strcat(buf, "\n");		
+	strcat(buf, "\n\n ");			
 	
 	for(int i = 0; i < lpFinder->m_data.tags->size; ++i){
 		char *tmpTag;
@@ -758,5 +788,5 @@ void drawInfoFromDB(char *buf, Finder *lpFinder)
 		strcat(buf, "  ");
 	}
 	strcat(buf, "\n\n");
-	strcat(buf, "Do you want to open example file?[y/n] --> ");
+	strcat(buf, " Do you want to open example file?[y/n] --> ");
 }

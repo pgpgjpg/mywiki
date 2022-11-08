@@ -10,7 +10,7 @@
 #define MAXDATASIZE 50000
 #define MAXTITLESIZE 100
 #define MAX_LENGTH 1024
-#define R_QUES 5
+#define R_QUES 4
 #define R_ANS 7
 #define R_TAG 9
 

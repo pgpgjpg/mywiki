@@ -16,4 +16,4 @@ client : $(OBJS)
 	$(CC) $(CFLAGS) -I$(INC) $< 
 
 clean :
-	rm *.o client $(BIN)/client
+	rm *.o client

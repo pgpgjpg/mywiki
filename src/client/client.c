@@ -94,7 +94,8 @@ void *recv_(void *arg)
 		if(n <= 0){
 			printf("\n서버 연결 끊김\n");
 			break;
-		}		
+		}				
+		buffer[n] = '\0';
 		if(!strcmp(buffer, "end")){
 			break;
 		} 		
@@ -133,14 +134,14 @@ void *recv_(void *arg)
 		}else{
 			buffer[n] = '\0';
 			system("clear");		
-			printf("%s", buffer);								
+			printf("%s\n", buffer);								
 		}
 		fflush(stdout);		
 	}
 	
-	pthread_cancel(lpClient.m_tid1);
+	pthread_cancel(lpClient.m_tid1);	
 	pthread_exit(NULL);    
-	exit(0);
+	//exit(0);
 }
 
 void cleanup(void *arg)

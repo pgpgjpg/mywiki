@@ -17,4 +17,4 @@ server : $(OBJS)
 	$(CC) $(CFLAGS) -I$(INC) $< 
 
 clean :
-	rm *.o server $(BIN)/server
+	rm *.o server
