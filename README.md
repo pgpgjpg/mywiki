@@ -41,7 +41,7 @@ DB에 미리 저장되어 있는 각 정보는 모두 1개 이상의 tag가 등�
 3. Tag들 등록 후, "Enter" 입력
 4. 조회된 Title 중, 원하는 Title 입력
 
-#### Upload
+**Upload**
 > server에 새로운 정보를 전달하여 DB에 등록 ("mywiki/data/server/"에 저장)
 1. "mywiki/bin/"으로 이동하여 "./client" 수행
 2. 방향키로 조작하여, "Upload" 실행
@@ -49,7 +49,7 @@ DB에 미리 저장되어 있는 각 정보는 모두 1개 이상의 tag가 등�
 4. 내용 입력
 5. Tag 등록
 
-### Revise
+**Revise**
 > server에 이미 DB에 등록되어 있는 정보를 수정/전달하여 DB에 재등록 ("mywiki/data/server/"에 저장)
 1. "mywiki/bin/"으로 이동하여 "./client" 수행
 2. 방향키로 조작하여, "Revise" 실행
@@ -59,14 +59,14 @@ DB에 미리 저장되어 있는 각 정보는 모두 1개 이상의 tag가 등�
 6. 내용 입력
 7. Tag 등록
  
-### Delete
+**Delete**
 > server에 요청하여, DB에 등록되어 있는 정보를 삭제
 1. "mywiki/bin/"으로 이동하여 "./client" 수행
 2. 방향키로 조작하여, "Delete" 실행
 3. Tag들 등록 후, "Enter" 입력
 4. 조회된 Title 중, 원하는 Title 입력
 
-### Exit
+**Exit**
 > "mywiki" 프로그램 종료
 1. "mywiki/bin/"으로 이동하여 "./client" 수행
 2. 방향키로 조작하여, "Exit" 입력
