@@ -28,6 +28,10 @@
         "tuple": "c",
         "utility": "c",
         "sstream": "c",
-        "array.h": "c"
+        "array.h": "c",
+        "random": "c",
+        "string": "c",
+        "string_view": "c",
+        "db.h": "c"
     }
 }
