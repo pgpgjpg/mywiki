@@ -70,6 +70,7 @@ void run_(Server *lpServer)
     pthread_t tid;
 
 	printf("Waiting for client...\n");
+
     while(1)
 	{
 		sin_size = sizeof(struct sockaddr_in);
@@ -96,6 +97,49 @@ void* start_main(void* arg)
 	Map *lpMap = newMap(); 		
     DB *lpDB = newDB();
 	lpDB->load(lpDB);	
+
+
+
+	// 여기서 passwd 로직 작성하면 될 듯
+	char loginMenu[2][10] = {"Login", "Join"};
+	int loginIdx = 0;
+	while(1)
+	{
+		lpMap->drawFrame(lpMap);
+		drawQues(loginMenu[0], lpMap, (int)(lpMap->m_rows*2/7 + 0.5), lpMap->m_cols/2);
+		drawQues(loginMenu[1], lpMap, (int)(lpMap->m_rows*4/7 + 0.5), lpMap->m_cols/2);
+		char *str = strstr(lpMap->m_map, loginMenu[loginIdx]);
+        if(str != NULL) *(str - 2) = '*';
+		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);  
+
+		keyCallback(sd, &key);		
+		switch(key){								
+			case 'u' : 				
+			case 'l' : 				
+				if(loginIdx != 0) loginIdx--; 				
+		 		else loginIdx = 1;				
+				break;
+			case 'd' : 				
+			case 'r' : 
+				if(loginIdx != 1) loginIdx++;
+		 		else loginIdx = 0;				
+				break;								
+		}	
+		if(key == '\n'){
+			if(loginIdx == 0){				
+				int flag = 0;
+				printf("Client accessed \"login\"\n");
+				flag = server_login(sd, lpMap);
+				sleep(1);
+				if(flag) break;				
+			}else if(loginIdx == 1){				
+				printf("Client accessed \"join\"\n");
+				server_join(sd, lpMap);
+				sleep(1);
+			}
+		}
+	}
+
 
     //무한 반복을 하면서 처리를 메뉴를 입력 반는다.    
     while (1) {
@@ -176,7 +220,7 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 	while(1){
 		// 질문에 대한 답 받아오기 client -> server
 		char ans[MAX_LENGTH] = "";		
-		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);		
+		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);		
 
 		// 답변 없이 Enter 입력 시, loop break
 		if(strlen(ans) == 1) break;
@@ -215,7 +259,7 @@ void server_search(int sd, Map *lpMap, DB *lpDB)
 	while(1){
 		char ans[MAX_LENGTH] = "";		
 		char title[MAX_LENGTH] = "";
-		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);
+		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);
 		ans[strlen(ans) - 1] = '\0';
 		strcpy(title, ans);
 		
@@ -304,7 +348,7 @@ void server_upload(int sd, Map *lpMap, DB *lpDB)
 	sendQues("Enter title to upload", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 	
 	char ans[MAX_LENGTH] = "";
-	syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);	
+	syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);	
 	ans[strlen(ans) - 1] = '\0';	
 	strcpy(uploadData.title, ans);
 	//printf("here?\n");
@@ -319,7 +363,7 @@ void server_upload(int sd, Map *lpMap, DB *lpDB)
 	sendQues("Enter data", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 
 	memset(ans, 0, MAX_LENGTH);
-	syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);		
+	syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);		
 	ans[strlen(ans) - 1] = '\0';	
 	strcpy(uploadData.data, ans);
 
@@ -333,7 +377,7 @@ void server_upload(int sd, Map *lpMap, DB *lpDB)
 	while(1){
 		// hash tag 입력 client->server
 		memset(ans, 0, MAX_LENGTH);
-		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);			
+		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);			
 		if(strlen(ans) == 1) break;
 		ans[strlen(ans) - 1] = '\0';
 
@@ -359,7 +403,7 @@ void server_upload(int sd, Map *lpMap, DB *lpDB)
 	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 
 	memset(ans, 0, MAX_LENGTH);
-	syncAnswer(ans, sd, lpMap, R_ANS+1, lpMap->m_cols/2);	
+	syncAnswer(ans, sd, lpMap, R_ANS+1, lpMap->m_cols/2, 0);	
 	if(strlen(ans) == 1) strcpy(uploadData.file, "NULL");
 	else{
 		char tmp[MAXTITLESIZE] = "";
@@ -412,7 +456,7 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 	while(1){
 		// 질문에 대한 답 받아오기 client -> server
 		char ans[MAX_LENGTH] = "";		
-		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);		
+		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);		
 
 		// 답변 없이 Enter 입력 시, loop break
 		if(strlen(ans) == 1) break;
@@ -454,7 +498,7 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 	char ans[MAX_LENGTH] = "";
 	// 입력한 제목의 데이터를 DB로부터 불러오기	
 	while(1){
-		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);
+		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);
 		ans[strlen(ans) - 1] = '\0';
 		strcpy(reviseData.title, ans);
 		
@@ -473,7 +517,7 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 	sendQues("Enter data", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 
 	memset(ans, 0, MAX_LENGTH);
-	syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);		
+	syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);		
 	ans[strlen(ans) - 1] = '\0';	
 	strcpy(reviseData.data, ans);
 
@@ -486,7 +530,7 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 	while(1){
 		// hash tag 입력 client->server
 		memset(ans, 0, MAX_LENGTH);
-		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);			
+		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);			
 		if(strlen(ans) == 1) break;
 		ans[strlen(ans) - 1] = '\0';
 
@@ -514,7 +558,7 @@ void server_revise(int sd, Map *lpMap, DB *lpDB)
 	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 
 	memset(ans, 0, MAX_LENGTH);
-	syncAnswer(ans, sd, lpMap, R_ANS + 1, lpMap->m_cols/2);	
+	syncAnswer(ans, sd, lpMap, R_ANS + 1, lpMap->m_cols/2, 0);	
 	if(strlen(ans) == 1) strcpy(reviseData.file, "NULL");
 	else{
 		char tmp[MAXTITLESIZE] = "";
@@ -567,7 +611,7 @@ void server_delete(int sd, Map *lpMap, DB *lpDB)
 	while(1){
 		// 질문에 대한 답 받아오기 client -> server
 		char ans[MAX_LENGTH] = "";		
-		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);		
+		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);		
 
 		// 답변 없이 Enter 입력 시, loop break
 		if(strlen(ans) == 1) break;
@@ -608,7 +652,7 @@ void server_delete(int sd, Map *lpMap, DB *lpDB)
 	while(1){
 		char ans[MAX_LENGTH] = "";		
 		char title[MAX_LENGTH] = "";
-		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2);
+		syncAnswer(ans, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);
 		ans[strlen(ans) - 1] = '\0';
 		strcpy(title, ans);	
 		
@@ -683,7 +727,7 @@ void sendQues(char* ques, int sd, Map *lpMap, int r, int c)
 	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);		
 }
 
-void syncAnswer(char* ans, int sd, Map *lpMap, int r, int c)
+void syncAnswer(char* ans, int sd, Map *lpMap, int r, int c, int option)
 {
 	while(1){	
 		appendCharCallback(sd, ans);		
@@ -693,7 +737,14 @@ void syncAnswer(char* ans, int sd, Map *lpMap, int r, int c)
 		if(strlen(ans) > 1 && (ans[strlen(ans) - 1] == 127 || ans[strlen(ans) - 1] == 8))
 			memset(ans + strlen(ans) - 2, '\0', sizeof(char)*2);			
 		drawBlank(lpMap, r, strlen(ans) + 2);
-		lpMap->drawText(lpMap, r, c - strlen(ans)/2, ans);
+		if(option == 0){
+			lpMap->drawText(lpMap, r, c - strlen(ans)/2, ans);
+		}else{
+			char tmp[MAX_LENGTH] = "";
+			memset(tmp, '*', strlen(ans));
+			tmp[strlen(ans)] = '\0';
+			lpMap->drawText(lpMap, r, c - strlen(ans)/2, tmp);
+		}
 		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);	
 	}
 }
@@ -789,4 +840,162 @@ void drawInfoFromDB(char *buf, Finder *lpFinder)
 	}
 	strcat(buf, "\n\n");
 	strcat(buf, " Do you want to open example file?[y/n] --> ");
+}
+
+int server_login(int sd, Map *lpMap)
+{
+	char id[10], pass[20];
+	int idLen = sizeof(id)/sizeof(id[0]);
+	int passLen = sizeof(pass)/sizeof(pass[0]);
+	
+	lpMap->clearMap(lpMap);
+	drawQues("Please input you ID", lpMap, R_QUES, lpMap->m_cols/2);			
+	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
+
+	// id 입력
+	while(1){
+		memset(id, 0, idLen);
+		syncAnswer(id, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);			
+		if(strlen(id) == 1){
+			// 공백은 안됨
+			continue;
+		}else{
+			id[strlen(id) - 1] = '\0';
+			break;
+		}
+	}
+
+	lpMap->clearMap(lpMap);
+	drawQues("Please input you PASSWD", lpMap, R_QUES, lpMap->m_cols/2);		
+	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
+
+	// passwd 입력
+	while(1){
+		memset(pass, 0, passLen);
+		syncAnswer(pass, sd, lpMap, R_ANS, lpMap->m_cols/2, 1);			
+		if(strlen(pass) == 1){
+			// 공백은 안됨
+			continue;
+		}else{
+			pass[strlen(pass) - 1] = '\0';
+			break;
+		}
+	}
+	
+	FILE *fp = fopen(PRIVATE_PATH, "r");	
+	char buf[MAXDATASIZE] = "";
+	if (NULL == fp) {
+		printf("%s 파일을 열수 없습니다\n", "db.txt");
+		lpMap->clearMap(lpMap);
+		sendQues("Error : login", sd, lpMap, R_QUES, lpMap->m_cols/2);
+		return 0;
+	}    					
+	if(fread(buf, 1, MAXDATASIZE, fp) == 0) {
+		printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
+		lpMap->clearMap(lpMap);
+		sendQues("Error : login", sd, lpMap, R_QUES, lpMap->m_cols/2);
+		return 0;
+	}
+	fclose(fp);
+
+	char tmp[MAX_LENGTH] = "";
+	sprintf(tmp, "id:%s pass:%s\n", id, pass);
+	char *isJoin = strstr(buf, tmp);
+
+	if(isJoin != NULL){
+		lpMap->clearMap(lpMap);
+		char greeting[MAX_LENGTH] = "";
+		sprintf(greeting, "Hello! %s", id);
+		drawQues(greeting, lpMap, R_QUES, lpMap->m_cols/2);		
+		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
+		return 1;
+	} 
+	else{ 
+		lpMap->clearMap(lpMap);
+		drawQues("ID or password is not correct", lpMap, R_QUES, lpMap->m_cols/2);		
+		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
+		return 0;
+	}
+}
+
+void server_join(int sd, Map *lpMap)
+{
+	FILE *fp = fopen(PRIVATE_PATH, "r");	
+	char buf[MAXDATASIZE] = "";
+	if (NULL == fp) {
+		printf("%s 파일을 열수 없습니다\n", "db.txt");
+		lpMap->clearMap(lpMap);
+		sendQues("Error : login", sd, lpMap, R_QUES, lpMap->m_cols/2);
+		return;
+	}    	
+	if(fread(buf, 1, MAXDATASIZE, fp) == 0) {
+		printf("%s 파일을 읽을 수 없습니다\n", "db.txt");
+		lpMap->clearMap(lpMap);
+		sendQues("Error : login", sd, lpMap, R_QUES, lpMap->m_cols/2);
+		return;
+	}
+	fclose(fp);
+
+	fp = fopen(PRIVATE_PATH, "w");
+
+	char id[10], pass[20];
+	int idLen = sizeof(id)/sizeof(id[0]);
+	int passLen = sizeof(pass)/sizeof(pass[0]);
+	
+	lpMap->clearMap(lpMap);
+	drawQues("Please input you ID", lpMap, R_QUES, lpMap->m_cols/2);			
+	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
+
+	// id 입력
+	while(1){
+		memset(id, 0, idLen);
+		syncAnswer(id, sd, lpMap, R_ANS, lpMap->m_cols/2, 0);			
+		if(strlen(id) == 1){
+			// 공백은 안됨
+			continue;
+		}else{
+			id[strlen(id) - 1] = '\0';
+			break;
+		}
+	}
+
+	char tmp[MAX_LENGTH] = "";
+	sprintf(tmp, "id:%s pass:", id);
+	char *isJoin = strstr(buf, tmp);
+	
+	if(isJoin != NULL){
+		lpMap->clearMap(lpMap);
+		drawQues("It is already registered ID", lpMap, R_QUES, lpMap->m_cols/2);		
+		send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
+		fwrite(buf, sizeof(char), strlen(buf), fp);	
+		fclose(fp);
+		return;
+	} 	
+
+	lpMap->clearMap(lpMap);
+	drawQues("Please input you PASSWD", lpMap, R_QUES, lpMap->m_cols/2);		
+	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
+
+	// passwd 입력
+	while(1){
+		memset(pass, 0, passLen);
+		syncAnswer(pass, sd, lpMap, R_ANS, lpMap->m_cols/2, 1);			
+		if(strlen(pass) == 1){
+			// 공백은 안됨
+			continue;
+		}else{
+			pass[strlen(pass) - 1] = '\0';
+			break;
+		}
+	}
+
+	sprintf(buf + strlen(buf), "id:%s pass:%s\n", id, pass);	
+	fwrite(buf, sizeof(char), strlen(buf), fp);	
+
+
+	fclose(fp);
+
+	lpMap->clearMap(lpMap);
+	drawQues("Thank you for join", lpMap, R_QUES, lpMap->m_cols/2);		
+	send(sd, lpMap->m_map, strlen(lpMap->m_map), 0);
 }

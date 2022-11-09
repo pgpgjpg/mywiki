@@ -113,7 +113,7 @@ void *recv_(void *arg)
 		}else if(buffer[n - 1] == '#'){			
 			buffer[n - 1] = '\0';		
 			char fileData[MAXDATASIZE] = "";
-			char filePath[MAXTITLESIZE] = PATH_SAVE_FILE;				
+			char filePath[MAXTITLESIZE] = PATH_SEND_FILE;				
 			strcat(filePath, buffer);
 		
 			FILE *fp = fopen(filePath, "r");	

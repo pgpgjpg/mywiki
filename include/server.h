@@ -6,6 +6,7 @@
 #include "finder.h"
 #define DB_PATH "/home/mobis/jpg/mywiki/data/server/db.txt"
 #define EXAMPLE_PATH "/home/mobis/jpg/mywiki/data/server/example/"
+#define PRIVATE_PATH "/home/mobis/jpg/mywiki/data/server/private.txt"
 #define BACKLOG 1024
 #define MAXDATASIZE 50000
 #define MAXTITLESIZE 100
@@ -40,9 +41,12 @@ void server_delete(int sd, Map *lpMap, DB *lpDB);
 void drawBlank(Map *lpMap, int r, int len);
 void drawQues(char* ques, Map *lpMap, int r, int c);
 void sendQues(char* ques, int sd, Map *lpMap, int r, int c);
-void syncAnswer(char* ans, int sd, Map *lpMap, int r, int c);
+void syncAnswer(char* ans, int sd, Map *lpMap, int r, int c, int option);
 void hash2arr(LPARRAY lpArr, LPHASH lpHash, int type);
 void drawTags(LPARRAY lpArr, Map *lpMap, int r, int c);
 void drawInfoFromDB(char *buf, Finder *lpFinder);
+
+int server_login(int sd, Map *lpMap);
+void server_join(int sd, Map *lpMap);
 
 #endif

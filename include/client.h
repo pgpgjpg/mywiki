@@ -7,7 +7,8 @@
 #include <unistd.h>
 #define MAXDATASIZE 50000
 #define MAXTITLESIZE 100
-#define PATH_SAVE_FILE "/home/mobis/jpg/mywiki/data/client/"
+#define PATH_SAVE_FILE "/home/mobis/jpg/mywiki/data/client/download/"
+#define PATH_SEND_FILE "/home/mobis/jpg/mywiki/data/client/"
 #define IP_ADDR "127.0.0.1"
 typedef struct Client{
     struct Client *m_this; // 자신을 가리키는 포인터 변수
