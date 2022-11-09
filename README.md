@@ -7,9 +7,10 @@
 추후 위의 문제를 직면했을 때, 내가 배우고 작성했던 코드들을 쉽게 열람할 수 있다면 많은 도움이 될 것이라 생각한다.
 
 ## Compile 방법
-1. "mywiki" 폴더를 홈 디렉토리로 복사 (홈디렉토리 : /home/mobis/)  
-  1-1. 만약 홈 디렉토리가 "/home/mobis/"이 아니라면, "mywiki/src/" 안에 있는 Makefile들의 경로를 바꿔주면 된다.  
-2. "mywiki/src/"으로 이동하여 "make" 수행  
+1. 홈 디렉토리에 "jpg" 폴더 생성
+1. "mywiki" 프로젝트 폴더를 "jpg"폴더로 복사 (path : /home/mobis/jpg/)  
+  1-1. 만약 홈 디렉토리가 "/home/mobis/"이 아니라면, "mywiki/src/" 안에 있는 Makefile들에 작성된 DEFAULT_PATH를 바꿔주면 된다.  
+3. "mywiki/src/"으로 이동하여 "make" 수행  
 
 ## 설명
 "mywiki" 프로그램은 tag들을 기반으로 검색이 가능하도록 만들어졌다.  
