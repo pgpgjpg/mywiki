@@ -3,12 +3,7 @@
 #include "array.h"
 #include "hash.h"
 #include "db.h"
-// typedef struct{
-//     char *title;
-//     char *data;
-//     char *file;
-//     LPARRAY tags;
-// } Data;
+
 typedef struct Finder{
     struct Finder *m_this; // 자신을 가리키는 포인터 변수
     Data m_data; // {char *title, char *data, char *file, LPARRAY tag;}

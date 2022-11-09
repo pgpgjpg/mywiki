@@ -14,8 +14,7 @@ Map *newMap()
     tmp->deleteMap = deleteMap_;
     tmp->drawFrame = drawFrame_;
     tmp->drawText = drawText_;
-    tmp->clearMap = clearMap_;
-    tmp->keyboardCallback = keyboardCallback_;
+    tmp->clearMap = clearMap_;    
     tmp->show = show_;
     tmp->m_this = tmp;       
     
@@ -85,11 +84,6 @@ void drawText_(Map *lpMap, int r, int c, char *text)
 void clearMap_(Map *lpMap)
 {    
     lpMap->drawFrame(lpMap);
-}
-
-void keyboardCallback_(Map *lpMap)
-{
-
 }
 
 void show_(Map *lpMap)

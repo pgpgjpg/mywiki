@@ -11,7 +11,6 @@ DB *newDB()
     tmp->deleteDB = deleteDB_; // 소멸자
     tmp->save = save_;
     tmp->remove = remove_;
-    tmp->getTag = getTag_;
     tmp->load = load_;     
     tmp->isInDB = isInDB_;
 
@@ -251,5 +250,3 @@ void remove_(DB *lpDB, char *title)
         }
     }
 }
-
-void getTag_(DB *lpDB){}

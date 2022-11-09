@@ -7,7 +7,7 @@
 -2002=hash 함수에서 메모리를 할당 받다 오류가 발생하였습니다.
 -2003=hash 함수에 자료를 찾을 수가 없습니다.
 
-DATA_COUNT=14
+DATA_COUNT=18
 #########################################################
 FILE_TITLE_1=asctime_ctime
 FILE_DATA_1=시간을 문자 스트링으로 변환
@@ -78,3 +78,23 @@ FILE_TITLE_14=sizeof
 FILE_DATA_14=It is for calculating size of datatpye
 FILE_PATH_14=/home/mobis/jpg/mywiki/data/server/example/sizeof.c
 FILE_TAGS_14=sizeof datatype int double char
+#########################################################
+FILE_TITLE_15=insertionSort
+FILE_DATA_15=자료 배열의 모든 요소를 앞에서부터 차례대로 이미 정렬된 배열 부분과 비교 하여, 자신의 위치를 찾아 삽입함으로써 정렬을 완성하는 알고리즘
+FILE_PATH_15=/home/mobis/jpg/mywiki/data/server/example/insertSort.c
+FILE_TAGS_15=sort sorting insert insertion array number
+#########################################################
+FILE_TITLE_16=mergeSort
+FILE_DATA_16=자료 하나의 리스트를 두 개의 균등한 크기로 분할하고 분할된 부분 리스트를 정렬한 다음, 두 개의 정렬된 부분 리스트를 합하여 전체가 정렬된 리스트가 되게 하는 방법이다.
+FILE_PATH_16=/home/mobis/jpg/mywiki/data/server/example/insertSort.c
+FILE_TAGS_16=sort sorting merge array number
+#########################################################
+FILE_TITLE_17=quickSort
+FILE_DATA_17=하나의 리스트를 피벗(pivot)을 기준으로 두 개의 비균등한 크기로 분할하고 분할된 부분 리스트를 정렬한 다음, 두 개의 정렬된 부분 리스트를 합하여 전체가 정렬된 리스트가 되게 하는 방법이다.
+FILE_PATH_17=/home/mobis/jpg/mywiki/data/server/example/insertSort.c
+FILE_TAGS_17=sort sorting quick quickly array number best most fast
+#########################################################
+FILE_TITLE_18=radixSort
+FILE_DATA_18=기수정렬은 낮은 자리수부터 비교하여 정렬해 간다는 것을 기본 개념으로 하는 정렬 알고리즘이다. 기수정렬은 비교 연산을 하지 않으며 정렬 속도가 빠르지만 데이터 전체 크기에 기수 테이블의 크기만한 메모리가 더 필요하다.
+FILE_PATH_18=/home/mobis/jpg/mywiki/data/server/example/insertSort.c
+FILE_TAGS_18=sort sorting radix memory array number

@@ -15,8 +15,6 @@ typedef struct Map{
     void (*drawFrame)(struct Map *);
     void (*drawText)(struct Map *, int, int, char *);
     void (*clearMap)(struct Map *);
-    void (*keyboardCallback)(struct Map *); 
-
     void (*show)(struct Map *);
 }Map;
 
@@ -25,8 +23,6 @@ void deleteMap_(Map *); // 소멸자
 void drawFrame_(Map *);
 void drawText_(Map *, int, int, char *);
 void clearMap_(Map *);
-void keyboardCallback_(Map *); 
-
 void show_(Map *);
 
 #endif

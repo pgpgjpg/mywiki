@@ -383,7 +383,7 @@ void server_upload(int sd, Map *lpMap, DB *lpDB)
 			lpMap->clearMap(lpMap); 	
 			sendQues("saving...", sd, lpMap, R_QUES, lpMap->m_cols/2);	
 			sleep(1);		
-			printf("%s\n", buffer);
+			
 			fwrite(buffer, sizeof(char), strlen(buffer), fp);	
 			lpMap->clearMap(lpMap); 	
 			sendQues("complete", sd, lpMap, R_QUES, lpMap->m_cols/2);	

@@ -25,7 +25,6 @@ typedef struct DB{
     void (*deleteDB)(struct DB *); // 소멸자
     void (*save)(struct DB *, Data *);
     void (*remove)(struct DB *, char *);
-    void (*getTag)(struct DB *);
     int (*load)(struct DB *);
     int (*isInDB)(struct DB *, char*);
 }DB;
@@ -34,7 +33,6 @@ DB *newDB();
 void deleteDB_(DB *); // 소멸자
 void save_(DB *, Data *);
 void remove_(DB *, char *);
-void getTag_(DB *);
 int load_(DB *);
 int isInDB_(DB *, char*);
 
