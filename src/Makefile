@@ -1,7 +1,8 @@
 CC = gcc
-INC = /home/mobis/jpg/mywiki/include
+DEFAULT_PATH = /home/mobis/jpg
+INC = $(DEFAULT_PATH)/mywiki/include
 CFLAGS = -fPIC -c -g
-LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lprofile -lhash -linput -larray -ldl
+LDFLAGS = -L$(DEFAULT_PATH)/mywiki/lib -lprofile -lhash -linput -larray -ldl
 TARGET = map libsrc finder db client server
 .PHONY : $(TARGET)
 

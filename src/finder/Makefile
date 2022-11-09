@@ -1,6 +1,7 @@
-INC = /home/mobis/jpg/mywiki/include/
+DEFAULT_PATH = /home/mobis/jpg
+INC = $(DEFAULT_PATH)/mywiki/include/
 CFLAGS = -fPIC -c -g
-LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lhash -larray -ldl
+LDFLAGS = -L$(DEFAULT_PATH)/mywiki/lib -lhash -larray -ldl
 OBJS = main.o finder.o
 SRCS = $(OBJS:.o=.c)
 CC = gcc

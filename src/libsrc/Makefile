@@ -1,6 +1,7 @@
-INC = /home/mobis/jpg/mywiki/include
-LIB = /home/mobis/jpg/mywiki/lib
-SRC = /home/mobis/jpg/mywiki/src
+DEFAULT_PATH = /home/mobis/jpg
+INC = $(DEFAULT_PATH)/mywiki/include
+LIB = $(DEFAULT_PATH)/mywiki/lib
+SRC = $(DEFAULT_PATH)/mywiki/src
 CFLAGS = -fPIC -c -g
 OBJS = menu.o profile.o input.o $(SRC)/map/map.o
 TARGET = libmenus.so libhash.so libarray.so libprofile.so libinput.so

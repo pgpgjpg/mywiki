@@ -1,7 +1,8 @@
-SRC = /home/mobis/jpg/mywiki/src
-INC = /home/mobis/jpg/mywiki/include
+DEFAULT_PATH = /home/mobis/jpg
+SRC = $(DEFAULT_PATH)/mywiki/src
+INC = $(DEFAULT_PATH)/mywiki/include
 CFLAGS = -fPIC -c -g
-LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lprofile -lhash -linput -larray -ldl
+LDFLAGS = -L$(DEFAULT_PATH)/mywiki/lib -lprofile -lhash -linput -larray -ldl
 EXES = main
 OBJS = main.o db.o
 SRCS = $(OBJS:.o=.c)

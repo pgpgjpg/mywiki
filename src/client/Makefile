@@ -1,7 +1,8 @@
-BIN = /home/mobis/jpg/mywiki/bin
-INC = /home/mobis/jpg/mywiki/include/
+DEFAULT_PATH = /home/mobis/jpg
+BIN = $(DEFAULT_PATH)/mywiki/bin
+INC = $(DEFAULT_PATH)/mywiki/include/
 CFLAGS = -c -g
-LDFLAGS = -L/home/mobis/jpg/mywiki/lib -lpthread
+LDFLAGS = -L$(DEFAULT_PATH)/mywiki/lib -lpthread
 OBJS = main.o client.o
 SRCS = $(OBJS:.o=.c)
 CC = gcc
