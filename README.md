@@ -10,7 +10,10 @@
 1. 홈 디렉토리에 "jpg" 폴더 생성
 1. "mywiki" 프로젝트 폴더를 "jpg"폴더로 복사 (path : /home/mobis/jpg/)  
   1-1. 만약 홈 디렉토리가 "/home/mobis/"이 아니라면, "mywiki/src/" 안에 있는 Makefile들에 작성된 DEFAULT_PATH를 바꿔주면 된다.  
-3. "mywiki/src/"으로 이동하여 "make" 수행  
+3. "mywiki/src/"으로 이동하여 "make clean" 수행  
+4. 같은 폴더에서 "make" 수행
+5. "~/.bashrc" 파일 맨 아랫 부분에 "export LD_LIBRARY_PATH=/home/mobis/jpg/mywiki/lib:${LD_LIBRARY_PATH}" 추가
+6. 터미널 창에서 "source ~/.bashrc" 실행
 
 ## 설명
 "mywiki" 프로그램은 tag들을 기반으로 검색이 가능하도록 만들어졌다.  
